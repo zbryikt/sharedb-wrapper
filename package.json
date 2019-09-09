@@ -1,0 +1,31 @@
+{
+  "author": "Kirby Wu",
+  "name": "sharedb-wrapper",
+  "license": "MIT",
+  "main": "dist/index.js",
+  "description": "Wrapper for quickly integrating sharedb in your express server. Use along with Postgresql.",
+  "version": "0.0.1",
+  "homepage": "https://github.com/zbryikt/sharedb-wrapper",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/zbryikt/sharedb-wrapper"
+  },
+  "engines": {
+    "node": ">=0.12.6",
+    "npm": ">=1.2.2"
+  },
+  "scripts": {
+    "start": "cd web; ../node_modules/.bin/lsc ./server.ls"
+  },
+  "devDependencies": {
+    "LiveScript": ">=1.2.0",
+    "express": "^4.16.4",
+    "json0-ot-diff": "1.0.5",
+    "template": "github:zbryikt/template#v2"
+  },
+  "dependencies": {
+    "sharedb": "^1.0.0-beta.23",
+    "sharedb-postgres": "^2.0.0",
+    "websocket-json-stream": "^0.0.3"
+  }
+}

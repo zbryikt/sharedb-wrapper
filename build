@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+mkdir -p dist
+echo "build src/index.ls -> dist/index.js ..."
+./node_modules/.bin/lsc -cbp src/index.ls > dist/index.js
+echo "done."
+
