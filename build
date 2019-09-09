@@ -2,5 +2,14 @@
 mkdir -p dist
 echo "build src/index.ls -> dist/index.js ..."
 ./node_modules/.bin/lsc -cbp src/index.ls > dist/index.js
+echo "build src/ot-diff.ls -> dist/ot-diff.js ..."
+./node_modules/.bin/lsc -cbp src/ot-diff.ls > dist/ot-diff.js
+echo "bundling src/ot-diff.ls for browser ... "
+./node_modules/.bin/browserify dist/ot-diff.js -o dist/ot-diff.js
+#echo "minifying ot-diff.js ..."
+#./node_modules/.bin/uglifyjs dist/ot-diff.js > dist/ot-diff.min.js
+echo "deploy ot-diff.js to web/ ..."
+mkdir -p web/static/assets/
+cp dist/ot-diff.js web/static/assets/
 echo "done."
 

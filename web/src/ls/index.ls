@@ -29,5 +29,10 @@
 
   btn = ld$.find document, \.btn .0
   btn.addEventListener \click, click
-)!
 
+  a = x: a: 1
+  b = x: a: 2
+  ret = json0-ot-diff a, b
+  console.log  ">", ret
+
+)!

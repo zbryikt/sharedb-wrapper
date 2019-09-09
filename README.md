@@ -1,7 +1,6 @@
 # Sharedb Wrapper
 
-Wrapper for quickly integrating sharedb in your express server. Use along with Postgresql.
-
+Wrapper for quickly integrating sharedb in your express server. Use along with Postgresql. A browserified version of json0-ot-diff and diff-match-patch is also provided as ot-diff.js.
 
 
 # Usage
@@ -9,6 +8,16 @@ Wrapper for quickly integrating sharedb in your express server. Use along with P
  * server side
    - for any server, pass http / express server to the exposed function.
    - startup the server by listening to desired port on the returned web server object.
+
+ * ot diff
+   - diff two object with related ops returned
+     ```
+     ret = json0-ot-diff obj1, obj2
+     ```
+   - also generate string insertion and deletion
+     ```
+     ret = json0-ot-diff obj1, obj2, diff-match-patch
+     ```
 
 
 # Note about Sharedb
