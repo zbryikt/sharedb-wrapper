@@ -4,7 +4,7 @@
     data = local.doc.data
     old = JSON.parse JSON.stringify(data)
     data.{}x.a = (data.{}x.a or 0) + 1
-    ops = json0-ot-diff old, data
+    ops = sdb.json.diff old, data
     local.doc.submitOp ops
   textarea = ld$.find document, \textarea, 0
   btn = ld$.find document, \.btn .0

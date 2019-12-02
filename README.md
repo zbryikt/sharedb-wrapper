@@ -5,53 +5,69 @@ Wrapper for quickly integrating sharedb in your express server. Use along with P
 
 # Usage
 
- * server side
-   - for any server, pass http / express server to the exposed function.
-   - startup the server by listening to desired port on the returned web server object.
-   - sample code: ( also refer to web/servevr.ls )
-     ```
-     require! <[sharedb-wrapper]>
-     # your express server
-     app = express!
-     # your postgresql configuration
-     cfg = {
-       uri: "postgres://username:password@localhost/dbname",
-       database: "dbname",
-       user: "username",
-       password: "password",
-       host: "localhost"
-     }
-     { server,  # wrapped http server
-       sdb,     # sharedb object
-       connect, # sharedb `Connection` object
-       wss      # websocket server
-     } = sharedb-wrapper {app, cfg}
-     server.listen <your-port>, -> ...
-     ```
- * client side
-   - include dist/client.js
-   - connect to sharedb server with sharedb-wrapper
-   - get desired doc
-   - use `doc.data` to read data
-   - use `json0-ot-diff(json1,json2)` to compare change and generate operation object `ops`.
-   - use `doc.submitOp` to write data via `ops`
-   - sample code: ( also refer to web/src/ls/index.ls )
-     ```
-     sdb = new sharedb-wrapper url: {scheme: \http, domain: <your-domain>}
-     sdb.get {id: <doc-id>, watch: (-> ... )}
-       .then (doc) -> doc.data ... 
-     update = -> doc.submitOp(json0-ot-diff(<old-data>, <new-data>))
-     ```
-     
- * ot diff
-   - diff two object with related ops returned
-     ```
-     ret = json0-ot-diff obj1, obj2
-     ```
-   - also generate string insertion and deletion
-     ```
-     ret = json0-ot-diff obj1, obj2, diff-match-patch
-     ```
+You need to setup for both server and client side.
+
+## Server Side
+
+ - for any server, pass http / express server to the exposed function.
+ - startup the server by listening to desired port on the returned web server object.
+ - sample code: ( also refer to web/servevr.ls )
+   ```
+   require! <[sharedb-wrapper]>
+   # your express server
+   app = express!
+   # your postgresql configuration
+   cfg = {
+     uri: "postgres://username:password@localhost/dbname",
+     database: "dbname",
+     user: "username",
+     password: "password",
+     host: "localhost"
+   }
+   { server,  # wrapped http server
+     sdb,     # sharedb object
+     connect, # sharedb `Connection` object
+     wss      # websocket server
+   } = sharedb-wrapper {app, cfg}
+   server.listen <your-port>, -> ...
+   ```
+
+
+## Client Side
+
+ - include dist/wrapper.js
+ - connect to sharedb server with sharedb-wrapper
+ - get desired doc
+ - use `doc.data` to read data
+ - use `wrapper.json.diff(json1,json2)` to compare change and generate operation object `ops`.
+ - use `doc.submitOp` to write data via `ops`
+ - sample code: ( also refer to web/src/ls/index.ls )
+   ```
+   sdb = new sharedb-wrapper url: {scheme: \http, domain: <your-domain>}
+   sdb.get {id: <doc-id>, watch: (-> ... )}
+     .then (doc) -> doc.data ... 
+   update = -> doc.submitOp(sddb.json.diff(<old-data>, <new-data>))
+   ```
+
+
+## Operational Transformation Diff Help Function
+
+To use sharedb, you need to calculate the OT(operational transformation) operations. sharedb-wrapper wraps a helper function `json0-ot-diff` from [kbadk/json0-ot-diff](https://github.com/kbadk/json0-ot-diff) for calculating json difference easily.
+
+It's already included in sharedb-wrapper in the created wrapper object, which could be accessed by `wrapperObj.json.diff`. By default it generate string insertion and deletion so you don't have to supply the thrid argument.
+
+You can also find a standalone file that provides `json0-ot-diff` and `diff-match-patch` functions. for more information, check out the [repo](https://github.com/kbadk/json0-ot-diff) directly.
+
+Usage:
+ - diff two object with related ops returned
+   ```
+   ret = json0-ot-diff obj1, obj2
+   ```
+
+ - also generate string insertion and deletion
+   ```
+   ret = json0-ot-diff obj1, obj2, diff-match-patch
+   ```
 
 
 # Note about Sharedb

@@ -7,7 +7,7 @@
     data = local.doc.data;
     old = JSON.parse(JSON.stringify(data));
     (data.x || (data.x = {})).a = ((data.x || (data.x = {})).a || 0) + 1;
-    ops = json0OtDiff(old, data);
+    ops = sdb.json.diff(old, data);
     return local.doc.submitOp(ops);
   };
   textarea = ld$.find(document, 'textarea', 0);
