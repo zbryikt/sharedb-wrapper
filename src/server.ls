@@ -11,7 +11,7 @@ sharedb-wrapper = ({app, config}) ->
   wss.on \connection, (ws, req) ->
     sdb.listen wjs = websocket-json-stream(ws)
     <- ws.on 'close', _
-  sdb.use \doc, (req, cb) ->
+  sdb.use \readSnapshots, (req, cb) ->
     doc = connect.get \doc, req.id
     doc.fetch -> doc.subscribe ->
     cb!

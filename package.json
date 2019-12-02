@@ -2,7 +2,7 @@
   "author": "Kirby Wu",
   "name": "sharedb-wrapper",
   "license": "MIT",
-  "main": "dist/index.js",
+  "main": "dist/server.js",
   "description": "Wrapper for quickly integrating sharedb in your express server. Use along with Postgresql.",
   "version": "0.0.1",
   "homepage": "https://github.com/zbryikt/sharedb-wrapper",

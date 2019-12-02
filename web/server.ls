@@ -1,5 +1,5 @@
 require! <[fs express path colors template]>
-sharedb-wrapper = require "../src/index"
+sharedb-wrapper = require "../src/server"
 
 server = do
   init: (opt) ->
