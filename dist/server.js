@@ -21,7 +21,7 @@ sharedbWrapper = function(arg$){
     sdb.listen(wjs = websocketJsonStream(ws));
     return ws.on('close', function(){});
   });
-  sdb.use('doc', function(req, cb){
+  sdb.use('readSnapshots', function(req, cb){
     var doc;
     doc = connect.get('doc', req.id);
     doc.fetch(function(){

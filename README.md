@@ -8,7 +8,41 @@ Wrapper for quickly integrating sharedb in your express server. Use along with P
  * server side
    - for any server, pass http / express server to the exposed function.
    - startup the server by listening to desired port on the returned web server object.
-
+   - sample code: ( also refer to web/servevr.ls )
+     ```
+     require! <[sharedb-wrapper]>
+     # your express server
+     app = express!
+     # your postgresql configuration
+     cfg = {
+       uri: "postgres://username:password@localhost/dbname",
+       database: "dbname",
+       user: "username",
+       password: "password",
+       host: "localhost"
+     }
+     { server,  # wrapped http server
+       sdb,     # sharedb object
+       connect, # sharedb `Connection` object
+       wss      # websocket server
+     } = sharedb-wrapper {app, cfg}
+     server.listen <your-port>, -> ...
+     ```
+ * client side
+   - include dist/client.js
+   - connect to sharedb server with sharedb-wrapper
+   - get desired doc
+   - use `doc.data` to read data
+   - use `json0-ot-diff(json1,json2)` to compare change and generate operation object `ops`.
+   - use `doc.submitOp` to write data via `ops`
+   - sample code: ( also refer to web/src/ls/index.ls )
+     ```
+     sdb = new sharedb-wrapper url: {scheme: \http, domain: <your-domain>}
+     sdb.get {id: <doc-id>, watch: (-> ... )}
+       .then (doc) -> doc.data ... 
+     update = -> doc.submitOp(json0-ot-diff(<old-data>, <new-data>))
+     ```
+     
  * ot diff
    - diff two object with related ops returned
      ```
