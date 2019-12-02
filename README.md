@@ -17,7 +17,7 @@ You need to setup for both server and client side.
    # your express server
    app = express!
    # your postgresql configuration
-   cfg = {
+   config = {
      uri: "postgres://username:password@localhost/dbname",
      database: "dbname",
      user: "username",
@@ -28,7 +28,7 @@ You need to setup for both server and client side.
      sdb,     # sharedb object
      connect, # sharedb `Connection` object
      wss      # websocket server
-   } = sharedb-wrapper {app, cfg}
+   } = sharedb-wrapper {app, config}
    server.listen <your-port>, -> ...
    ```
 
