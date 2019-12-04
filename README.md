@@ -95,6 +95,28 @@ Usage:
    ret = json0-ot-diff obj1, obj2, diff-match-patch
    ```
 
+## Web Server / Reverse Proxy Configuration
+
+Sharedb works over websocket, which connects to `/ws` URL with `ws://` or `wss://` schema. You will need to setup corresponding rules in your web server, such as, Nginx:
+
+    upstream <upstream-name> {
+      server <server-ip:server-port>;
+    }
+    server {
+      ....
+      location ~ ^/ws$ {
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header Host $host;
+        proxy_pass http://<upstream-name>;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_connect_timeout 30m;
+        proxy_send_timeout 30m;
+        proxy_read_timeout 30m;
+      }
+    }
+
 
 # Note about Sharedb
 
