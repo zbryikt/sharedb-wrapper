@@ -61,7 +61,7 @@ or copy from here:
 
 ## Client Side
 
- - include dist/wrapper.js
+ - include dist/index.js and dist/wrapper.js
  - connect to sharedb server with sharedb-wrapper
  - get desired doc
  - use `doc.data` to read data
