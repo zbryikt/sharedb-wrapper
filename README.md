@@ -72,7 +72,7 @@ or copy from here:
    sdb = new sharedb-wrapper url: {scheme: \http, domain: <your-domain>}
    sdb.get {id: <doc-id>, watch: (-> ... )}
      .then (doc) -> doc.data ... 
-   update = -> doc.submitOp(sddb.json.diff(<old-data>, <new-data>))
+   update = -> doc.submitOp(sdb.json.diff(<old-data>, <new-data>))
    ```
 
 
