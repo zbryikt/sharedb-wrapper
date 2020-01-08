@@ -1,5 +1,5 @@
 (->
-  require! <[json0-ot-diff diff-match-patch]>
+  #require! <[json0-ot-diff diff-match-patch]>
   diff = (o,n,dostr = true) -> json0-ot-diff o, n, (if dostr => diff-match-patch else null)
   sharedb-wrapper = ({url}) ->
     @socket = new WebSocket "#{if url.scheme == \http => \ws else \wss}://#{url.domain}/ws"

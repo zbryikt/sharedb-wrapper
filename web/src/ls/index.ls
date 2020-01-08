@@ -3,7 +3,7 @@
   click = -> 
     data = local.doc.data
     old = JSON.parse JSON.stringify(data)
-    data.{}x.a = (data.{}x.a or 0) + 1
+    data.{}x.a = (+"#{(data.{}x.a or 0)}") + 1
     ops = sdb.json.diff old, data
     local.doc.submitOp ops
   textarea = ld$.find document, \textarea, 0

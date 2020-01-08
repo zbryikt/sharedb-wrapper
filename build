@@ -1,20 +1,36 @@
 #!/usr/bin/env bash
 mkdir -p dist
+rm dist/*
 echo "build src/server.ls -> dist/server.js ..."
 ./node_modules/.bin/lsc -cbp src/server.ls > dist/server.js
-echo "build src/client.ls -> dist/wrapper.js ..."
-./node_modules/.bin/lsc -cbp src/client.ls > dist/wrapper.js
-echo "bundling disst/wrapper.js for browser ... "
-./node_modules/.bin/browserify dist/wrapper.js -o dist/wrapper.js
-echo "build src/ot-diff.ls -> dist/ot-diff.js ..."
-./node_modules/.bin/lsc -cbp src/ot-diff.ls > dist/ot-diff.js
-echo "bundling src/ot-diff.js for browser ... "
-./node_modules/.bin/browserify dist/ot-diff.js -o dist/ot-diff.js
-# TODO need transpile before we could uglify
-#echo "minifying sharedb-wrapper.js ..."
-#./node_modules/.bin/uglifyjs dist/wrapper.js > dist/wrapper.min.js
-echo "deploy wrapper.js to web/ ..."
-mkdir -p web/static/assets/lib/sharedb/
-cp dist/wrapper.js web/static/assets/lib/sharedb/
+
+echo "build src/client.ls -> dist/client.js ..."
+./node_modules/.bin/lsc -cbp src/client.ls > dist/client.js
+./node_modules/.bin/uglifyjs dist/client.js > dist/client.min.js
+
+echo "building modules ..."
+echo " - json0-ot-diff ... -> dist/json-ot-diff.min.js "
+./node_modules/.bin/browserify -p tinyify -r json0-ot-diff | \
+  buble | ./node_modules/.bin/uglifyjs > dist/json-ot-diff.min.js
+echo " - diff-match-patch ... -> dist/json-ot-diff.min.js "
+./node_modules/.bin/browserify -p tinyify -r diff-match-patch | \
+  ./node_modules/.bin/uglifyjs >> dist/json-ot-diff.min.js
+echo "(function() { window.json0OtDiff = require('json0-ot-diff'); window.diffMatchPatch = require('diff-match-patch'); })();" >> dist/json-ot-diff.min.js
+echo " - sharedb ( client ) ... -> dist/sharedb.min.js"
+./node_modules/.bin/browserify \
+  -g unassertify \
+  -g envify \
+  -g uglifyify \
+  -r sharedb/lib/client:sharedb \
+  -p browser-pack-flat/plugin \
+  | ./node_modules/.bin/uglifyjs > dist/sharedb.min.js
+# common-shakeify breaks this module, so remove it.
+#  -p common-shakeify \
+echo "(function() { window.sharedb = require('sharedb'); })();" >> dist/sharedb.min.js
+
+echo "deploy files to web/ ..."
+mkdir -p web/static/assets/lib/sharedb-wrapper/
+rm web/static/assets/lib/sharedb-wrapper/*
+cp dist/* web/static/assets/lib/sharedb-wrapper/
 echo "done."
 

@@ -6,7 +6,7 @@
     var data, old, ops;
     data = local.doc.data;
     old = JSON.parse(JSON.stringify(data));
-    (data.x || (data.x = {})).a = ((data.x || (data.x = {})).a || 0) + 1;
+    (data.x || (data.x = {})).a = (+(((data.x || (data.x = {})).a || 0) + "")) + 1;
     ops = sdb.json.diff(old, data);
     return local.doc.submitOp(ops);
   };
