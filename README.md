@@ -61,7 +61,12 @@ or copy from here:
 
 ## Client Side
 
- - include dist/index.js and dist/wrapper.js
+ - include following files:
+   - as a bundle: dist/client.bundle.min.js
+   - separatedly:
+     - dist/sharedb.min.js
+     - dist/json-ot-diff.min.js
+     - dist/client.min.js
  - connect to sharedb server with sharedb-wrapper
  - get desired doc
  - use `doc.data` to read data
