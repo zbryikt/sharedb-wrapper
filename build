@@ -28,6 +28,9 @@ echo " - sharedb ( client ) ... -> dist/sharedb.min.js"
 #  -p common-shakeify \
 echo "(function() { window.sharedb = require('sharedb'); })();" >> dist/sharedb.min.js
 
+echo "bundling client files to client.bundle.min.js ..."
+cat dist/sharedb.min.js dist/json-ot-diff.min.js dist/client.min.js > dist/client.bundle.min.js
+
 echo "deploy files to web/ ..."
 mkdir -p web/static/assets/lib/sharedb-wrapper/
 rm web/static/assets/lib/sharedb-wrapper/*
