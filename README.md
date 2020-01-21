@@ -72,6 +72,7 @@ or copy from here:
  - use `doc.data` to read data
  - use `wrapper.json.diff(json1,json2)` to compare change and generate operation object `ops`.
  - use `doc.submitOp` to write data via `ops`
+ - use `watch` function configured in sdb.get to watch for remote changes.
  - sample code: ( also refer to web/src/ls/index.ls )
    ```
    sdb = new sharedb-wrapper url: {scheme: \http, domain: <your-domain>}
