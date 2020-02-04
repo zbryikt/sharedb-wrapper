@@ -5,8 +5,13 @@ server = do
   init: (opt) ->
     @app = app = express!
 
+    session = (req, res, next) ->
+      server.user = (server.user or 0) + 1
+      req.session = {name: "user-#{server.user}"}
+      console.log "session user set: ", req.session
+      next!
     # sharedb init
-    {server, sdb, connect, wss} = sharedb-wrapper {app, config: opt.io-pg}
+    {server, sdb, connect, wss} = sharedb-wrapper {app, io: opt.io-pg, session}
     app.set 'view engine', \pug
     app.use \/, express.static \static
     if opt.api => opt.api @

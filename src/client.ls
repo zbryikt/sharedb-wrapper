@@ -11,6 +11,7 @@
     get: ({id, watch, create}) -> new Promise (res, rej) ~>
       doc = @connection.get \doc, id
       doc.fetch (e) ->
+        if e => return rej e
         doc.subscribe (ops, source) -> res doc
         if watch? => doc.on \op, (ops, source) -> watch ops, source
         if !doc.type => doc.create ((if create => create! else null) or {})

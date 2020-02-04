@@ -26,6 +26,9 @@
         var doc;
         doc = this$.connection.get('doc', id);
         return doc.fetch(function(e){
+          if (e) {
+            return rej(e);
+          }
           doc.subscribe(function(ops, source){
             return res(doc);
           });
