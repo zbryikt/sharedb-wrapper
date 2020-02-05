@@ -63,6 +63,7 @@ sharedb-wrapper = ({app, io, session, access}) ->
       .then -> cb!
       .catch -> cb 'forbidden'
 
+  # access control in both reply and receive middleware
   backend.use \reply, ({collection, agent, reply}, cb) ->
     {req, session, user} = agent.custom
     id = reply.d

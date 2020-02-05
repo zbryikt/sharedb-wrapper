@@ -67,7 +67,7 @@ sharedbWrapper = function(arg$){
       : Promise.resolve()).then(function(){
       return cb();
     })['catch'](function(){
-      return cb('access denied');
+      return cb('forbidden');
     });
   });
   backend.use('reply', function(arg$, cb){
@@ -85,7 +85,7 @@ sharedbWrapper = function(arg$){
       : Promise.resolve()).then(function(){
       return cb();
     })['catch'](function(){
-      return cb('access denied - reply');
+      return cb('forbidden');
     });
   });
   backend.use('receive', function(arg$, cb){
@@ -103,7 +103,7 @@ sharedbWrapper = function(arg$){
       : Promise.resolve()).then(function(){
       return cb();
     })['catch'](function(){
-      return cb('access denied - receive');
+      return cb('forbidden');
     });
   });
   return ret = {
