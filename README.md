@@ -101,7 +101,9 @@ Access should return a Promise which only resolve when access is granted.
 #### prohibit creating new document
 
 ```
-  access = ({snapshots}) -> if snapshots and !(snapshots.0.id) => return Promise.reject(new Error(""));
+  access = ({snapshots}) ->
+    if snapshots and !(snapshots.0.id) => return Promise.reject(new Error(""));
+    return Promise.resolve!
 ```
 
 
