@@ -12,7 +12,7 @@
 
   sdb = new sharedb-wrapper url: {scheme: \http, domain: \localhost:3005}
   watch = -> textarea.value = JSON.stringify local.doc.data
-  sdb.get {id: \sample, watch: watch}
+  sdb.get {id: \sample5, watch: watch}
     .then (doc) -> local.doc = doc; watch!
   textarea.onchange = -> console.log textarea.value
 )!

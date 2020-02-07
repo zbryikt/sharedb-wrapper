@@ -23,7 +23,7 @@
     return textarea.value = JSON.stringify(local.doc.data);
   };
   sdb.get({
-    id: 'sample',
+    id: 'sample5',
     watch: watch
   }).then(function(doc){
     local.doc = doc;

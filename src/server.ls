@@ -58,7 +58,6 @@ sharedb-wrapper = ({app, io, session, access}) ->
     if !agent.stream.ws => return cb!
     {req, session, user} = agent.custom
     id = (snapshots.0 or {}).id
-    return cb!
     (if access? => access({user, session, collection, id, snapshots}) else Promise.resolve!)
       .then -> cb!
       .catch -> cb 'forbidden'
@@ -77,6 +76,6 @@ sharedb-wrapper = ({app, io, session, access}) ->
       .then -> cb!
       .catch -> cb 'forbidden'
 
-  ret = { server, sharedb: backend, connect, wss }
+  ret = { server, sdb: backend, connect, wss }
 
 module.exports = sharedb-wrapper

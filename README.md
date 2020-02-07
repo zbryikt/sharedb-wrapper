@@ -40,8 +40,10 @@ or copy from here:
  - sample code: ( also refer to web/servevr.ls )
    ```
    require! <[sharedb-wrapper]>
+
    # your express server
    app = express!
+
    # your postgresql configuration
    config = {
      uri: "postgres://username:password@localhost/dbname",
@@ -50,13 +52,57 @@ or copy from here:
      password: "password",
      host: "localhost"
    }
+
+   # access control
+   access = ->  ...
+
+   # session control
+   session = -> ...
+
+   # initialization
    { server,  # wrapped http server
      sdb,     # sharedb object
      connect, # sharedb `Connection` object
      wss      # websocket server
-   } = sharedb-wrapper {app, config}
+   } = sharedb-wrapper {app, config, session, access}
+
+   # server startup
    server.listen <your-port>, -> ...
    ```
+
+### Session Control
+
+By default, your express session won't available in sharedb request object. By passing `session` middleware to the sharedb-wrapper, websocket request object will be passed to session function and thus initialize with your session middleware, and the session information will be available later in your access control function.
+
+```
+    sharedb-wrapper do
+      session: (req, res, next) -> req.session = {user: 1}; next!
+```
+
+### Access Control
+
+Sharedb-wrapper check for permission in 3 places:
+
+ * readSnapshot middleware
+ * reply middleware
+ * receive middleware
+
+by calling your `access` function with following profile:
+
+```
+  access = ({user, session, collection, id, snapshots}) ->
+```
+
+where snapshots will only available with `readSnapshot` middleware.
+
+Access should return a Promise which only resolve when access is granted.
+
+
+#### prohibit creating new document
+
+```
+  access = ({snapshots}) -> if snapshots and !(snapshots.0.id) => return Promise.reject(new Error(""));
+```
 
 
 ## Client Side
