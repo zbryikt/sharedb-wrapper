@@ -64,12 +64,14 @@ sharedb-wrapper = ({app, io, session, access}) ->
 
   # access control in both reply and receive middleware
   backend.use \reply, ({collection, agent, reply}, cb) ->
+    if !agent.stream.ws => return cb!
     {req, session, user} = agent.custom
     id = reply.d
     (if access? => access({user, session, collection, id}) else Promise.resolve!)
       .then -> cb!
       .catch -> cb 'forbidden'
   backend.use \receive, ({collection, agent, data}, cb) ->
+    if !agent.stream.ws => return cb!
     {req, session, user} = agent.custom
     id = data.d
     (if access? => access({user, session, collection, id}) else Promise.resolve!)

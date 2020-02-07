@@ -72,6 +72,9 @@ sharedbWrapper = function(arg$){
   backend.use('reply', function(arg$, cb){
     var collection, agent, reply, ref$, req, session, user, id;
     collection = arg$.collection, agent = arg$.agent, reply = arg$.reply;
+    if (!agent.stream.ws) {
+      return cb();
+    }
     ref$ = agent.custom, req = ref$.req, session = ref$.session, user = ref$.user;
     id = reply.d;
     return (access != null
@@ -90,6 +93,9 @@ sharedbWrapper = function(arg$){
   backend.use('receive', function(arg$, cb){
     var collection, agent, data, ref$, req, session, user, id;
     collection = arg$.collection, agent = arg$.agent, data = arg$.data;
+    if (!agent.stream.ws) {
+      return cb();
+    }
     ref$ = agent.custom, req = ref$.req, session = ref$.session, user = ref$.user;
     id = data.d;
     return (access != null
