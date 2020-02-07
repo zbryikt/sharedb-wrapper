@@ -55,7 +55,6 @@ sharedbWrapper = function(arg$){
     }
     ref$ = agent.custom, req = ref$.req, session = ref$.session, user = ref$.user;
     id = (snapshots[0] || {}).id;
-    return cb();
     return (access != null
       ? access({
         user: user,
@@ -108,7 +107,7 @@ sharedbWrapper = function(arg$){
   });
   return ret = {
     server: server,
-    sharedb: backend,
+    sdb: backend,
     connect: connect,
     wss: wss
   };
