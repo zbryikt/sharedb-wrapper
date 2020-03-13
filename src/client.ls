@@ -24,12 +24,12 @@
       @ <<< socket: null, connected: false
       @socket = null
 
-    reconnect: ->
-      if @socket => return
+    reconnect: -> new Promise (res, rej) ~>
+      if @socket => return res!
       @socket = new WebSocket "#{if @url.scheme == \http => \ws else \wss}://#{@url.domain}/ws"
       @connection = new sharedb.Connection @socket
       @socket.addEventListener \close, ~> @ <<< {socket: null, connected: false}; @fire \close
-      @socket.addEventListener \open, ~> @connected = true
+      @socket.addEventListener \open, ~> @connected = true; res!
 
 
   if module? => module.exports = sharedb-wrapper

@@ -69,18 +69,21 @@ var slice$ = [].slice;
     },
     reconnect: function(){
       var this$ = this;
-      if (this.socket) {
-        return;
-      }
-      this.socket = new WebSocket((this.url.scheme === 'http' ? 'ws' : 'wss') + "://" + this.url.domain + "/ws");
-      this.connection = new sharedb.Connection(this.socket);
-      this.socket.addEventListener('close', function(){
-        this$.socket = null;
-        this$.connected = false;
-        return this$.fire('close');
-      });
-      return this.socket.addEventListener('open', function(){
-        return this$.connected = true;
+      return new Promise(function(res, rej){
+        if (this$.socket) {
+          return res();
+        }
+        this$.socket = new WebSocket((this$.url.scheme === 'http' ? 'ws' : 'wss') + "://" + this$.url.domain + "/ws");
+        this$.connection = new sharedb.Connection(this$.socket);
+        this$.socket.addEventListener('close', function(){
+          this$.socket = null;
+          this$.connected = false;
+          return this$.fire('close');
+        });
+        return this$.socket.addEventListener('open', function(){
+          this$.connected = true;
+          return res();
+        });
       });
     }
   });
