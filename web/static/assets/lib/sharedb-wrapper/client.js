@@ -7,14 +7,11 @@ var slice$ = [].slice;
     return json0OtDiff(o, n, dostr ? diffMatchPatch : null);
   };
   sharedbWrapper = function(arg$){
-    var url, this$ = this;
+    var url;
     url = arg$.url;
+    this.url = url;
     this.evtHandler = {};
-    this.socket = new WebSocket((url.scheme === 'http' ? 'ws' : 'wss') + "://" + url.domain + "/ws");
-    this.connection = new sharedb.Connection(this.socket);
-    this.socket.addEventListener('close', function(){
-      return this$.fire('close');
-    });
+    this.reconnect();
     return this;
   };
   sharedbWrapper.prototype = import$(Object.create(Object.prototype), {
@@ -60,6 +57,31 @@ var slice$ = [].slice;
         results$.push(cb.apply(this, v));
       }
       return results$;
+    },
+    disconnect: function(){
+      if (!this.socket) {
+        return;
+      }
+      this.socket.close();
+      this.socket = null;
+      this.connected = false;
+      return this.socket = null;
+    },
+    reconnect: function(){
+      var this$ = this;
+      if (this.socket) {
+        return;
+      }
+      this.socket = new WebSocket((this.url.scheme === 'http' ? 'ws' : 'wss') + "://" + this.url.domain + "/ws");
+      this.connection = new sharedb.Connection(this.socket);
+      this.socket.addEventListener('close', function(){
+        this$.socket = null;
+        this$.connected = false;
+        return this$.fire('close');
+      });
+      return this.socket.addEventListener('open', function(){
+        return this$.connected = true;
+      });
     }
   });
   if (typeof module != 'undefined' && module !== null) {
