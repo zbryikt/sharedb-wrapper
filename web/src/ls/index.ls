@@ -11,13 +11,14 @@
   btn1.addEventListener \click, click
   btn2 = ld$.find document, \.btn .1
   btn2.addEventListener \click, ->
-    if sdb.connected =>
-      btn2.innerText = "Reconnect"
-      sdb.disconnect!
-    else
-      btn2.innerText = "Disconnect"
+    if !sdb.connected => return
+    sdb.disconnect!
+  btn2 = ld$.find document, \.btn .2
+  btn2.addEventListener \click, ->
+    if !sdb.connected =>
       sdb.reconnect!
       init!
+      ldcv.toggle false
 
   sdb = new sharedb-wrapper url: {scheme: \http, domain: \localhost:3005}
   watch = -> textarea.value = JSON.stringify local.doc.data
@@ -26,6 +27,7 @@
       .then (doc) -> local.doc = doc; watch!
   textarea.onchange = -> console.log textarea.value
   ldld = new ldLoader className: "ldld full"
-  #sdb.on \close, -> ldld.on!
+  sdb.on \close, -> ldcv.toggle!
+  ldcv = new ldCover root: \.ldcv
   init!
 )!
