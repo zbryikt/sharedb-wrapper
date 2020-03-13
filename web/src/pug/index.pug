@@ -7,7 +7,9 @@ html
   body
     .p-4.w-1024.rwd.mx-auto.my-4
       textarea.form-control.form-control-lg.mb-2(rows="10",readonly)
-      .btn.btn-lg.btn-primary Add
+      .d-flex.justify-content-between
+        .btn.btn-lg.btn-primary Add
+        .btn.btn-lg.btn-primary Close Connection
     +script("/assets/ldui/ldui.min.js")
     +script("/assets/lib/sharedb-wrapper/sharedb.min.js")
     +script("/assets/lib/sharedb-wrapper/json-ot-diff.min.js")
