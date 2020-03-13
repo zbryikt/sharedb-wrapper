@@ -130,6 +130,15 @@ Access should return a Promise which only resolve when access is granted.
    ```
 
 
+### Reconnect
+
+monitor `sdb` close event and use `sdb.reconnect` to connect again:
+
+    sdb.on \close, ->
+      alert "disconnected. reconnect again ... "
+      setTimeout (-> sdb.reconnect! ), 5000
+
+
 ## Operational Transformation Diff Help Function
 
 To use sharedb, you need to calculate the OT(operational transformation) operations. sharedb-wrapper wraps a helper function `json0-ot-diff` from [kbadk/json0-ot-diff](https://github.com/kbadk/json0-ot-diff) for calculating json difference easily.
