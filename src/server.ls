@@ -58,7 +58,7 @@ sharedb-wrapper = ({app, io, session, access}) ->
     if !agent.stream.ws => return cb!
     {req, session, user} = agent.custom
     id = (snapshots.0 or {}).id
-    (if access? => access({user, session, collection, id, snapshots}) else Promise.resolve!)
+    (if access? => access({user, session, collection, id, snapshots, type: \readSnapshots}) else Promise.resolve!)
       .then -> cb!
       .catch -> cb 'forbidden'
 
@@ -67,14 +67,14 @@ sharedb-wrapper = ({app, io, session, access}) ->
     if !agent.stream.ws => return cb!
     {req, session, user} = agent.custom
     id = reply.d
-    (if access? => access({user, session, collection, id}) else Promise.resolve!)
+    (if access? => access({user, session, collection, id, type: \reply}) else Promise.resolve!)
       .then -> cb!
       .catch -> cb 'forbidden'
   backend.use \receive, ({collection, agent, data}, cb) ->
     if !agent.stream.ws => return cb!
     {req, session, user} = agent.custom
     id = data.d
-    (if access? => access({user, session, collection, id}) else Promise.resolve!)
+    (if access? => access({user, session, collection, id, data, type: \receive}) else Promise.resolve!)
       .then -> cb!
       .catch -> cb 'forbidden'
 

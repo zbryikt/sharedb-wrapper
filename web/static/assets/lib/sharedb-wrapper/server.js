@@ -61,7 +61,8 @@ sharedbWrapper = function(arg$){
         session: session,
         collection: collection,
         id: id,
-        snapshots: snapshots
+        snapshots: snapshots,
+        type: 'readSnapshots'
       })
       : Promise.resolve()).then(function(){
       return cb();
@@ -82,7 +83,8 @@ sharedbWrapper = function(arg$){
         user: user,
         session: session,
         collection: collection,
-        id: id
+        id: id,
+        type: 'reply'
       })
       : Promise.resolve()).then(function(){
       return cb();
@@ -103,7 +105,9 @@ sharedbWrapper = function(arg$){
         user: user,
         session: session,
         collection: collection,
-        id: id
+        id: id,
+        data: data,
+        type: 'receive'
       })
       : Promise.resolve()).then(function(){
       return cb();
