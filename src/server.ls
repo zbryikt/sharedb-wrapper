@@ -39,6 +39,8 @@ sharedb-wrapper = ({app, io, session, access}) ->
       session = req.session
       user = req.session.passport and req.session.passport.user
       backend.listen (wjs = websocket-json-stream(ws)), req
+    .catch (e) ->
+      console.log "[sharedb-wrapper] wss on connection error: ", (e.message or e)
     ws.on \close, ->
 
   # 3. Backend handle sharedb connect.
