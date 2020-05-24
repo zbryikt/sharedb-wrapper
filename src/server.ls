@@ -1,11 +1,14 @@
-require! <[sharedb sharedb-postgres ws http websocket-json-stream]>
-sharedb-wrapper = ({app, io, session, access}) ->
+require! <[sharedb sharedb-postgres sharedb-pg-mdb ws http websocket-json-stream]>
+sharedb-wrapper = ({app, io, session, access, milestone-interval}) ->
 
   # HTTP Server - if we create server here, we should server.listen instead of app.listen
   server = http.create-server app
 
   # ShareDB Backend
-  backend = new sharedb {db: sharedb-postgres io}
+  backend = new sharedb {
+    db: sharedb-postgres(io)
+    milestoneDb: new sharedb-pg-mdb({io-pg: io, interval: milestone-interval or 250})
+  }
 
   # Connection object for ShareDB Server
   connect = backend.connect!
