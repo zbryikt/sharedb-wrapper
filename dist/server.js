@@ -7,15 +7,15 @@ ws = require('ws');
 http = require('http');
 websocketJsonStream = require('websocket-json-stream');
 sharedbWrapper = function(arg$){
-  var app, io, session, access, milestoneInterval, server, backend, connect, wss, ret;
-  app = arg$.app, io = arg$.io, session = arg$.session, access = arg$.access, milestoneInterval = arg$.milestoneInterval;
+  var app, io, session, access, milestone, server, backend, connect, wss, ret;
+  app = arg$.app, io = arg$.io, session = arg$.session, access = arg$.access, milestone = arg$.milestone;
   server = http.createServer(app);
   backend = new sharedb({
     db: sharedbPostgres(io),
-    milestoneDb: new sharedbPgMdb({
+    milestoneDb: milestone.enable ? new sharedbPgMdb({
       ioPg: io,
-      interval: milestoneInterval || 250
-    })
+      interval: milestone.interval || 250
+    }) : null
   });
   connect = backend.connect();
   wss = new ws.Server({
