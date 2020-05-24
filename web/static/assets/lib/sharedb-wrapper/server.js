@@ -6,16 +6,17 @@ sharedbPgMdb = require('sharedb-pg-mdb');
 ws = require('ws');
 http = require('http');
 websocketJsonStream = require('websocket-json-stream');
-sharedbWrapper = function(arg$){
-  var app, io, session, access, milestone, server, backend, connect, wss, ret;
-  app = arg$.app, io = arg$.io, session = arg$.session, access = arg$.access, milestone = arg$.milestone;
+sharedbWrapper = function(opt){
+  var app, io, session, access, milestone, server, mdb, backend, connect, wss, ret;
+  app = opt.app, io = opt.io, session = opt.session, access = opt.access, milestone = opt.milestone;
   server = http.createServer(app);
+  mdb = milestone && milestone.enabled ? new sharedbPgMdb({
+    ioPg: io,
+    interval: milestone.interval || 250
+  }) : null;
   backend = new sharedb({
     db: sharedbPostgres(io),
-    milestoneDb: milestone.enable ? new sharedbPgMdb({
-      ioPg: io,
-      interval: milestone.interval || 250
-    }) : null
+    milestoneDb: mdb
   });
   connect = backend.connect();
   wss = new ws.Server({

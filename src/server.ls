@@ -1,14 +1,15 @@
 require! <[sharedb sharedb-postgres sharedb-pg-mdb ws http websocket-json-stream]>
-sharedb-wrapper = ({app, io, session, access, milestone}) ->
-
+sharedb-wrapper = (opt) ->
+  {app, io, session, access, milestone} = opt
   # HTTP Server - if we create server here, we should server.listen instead of app.listen
   server = http.create-server app
 
+  mdb = if (milestone and milestone.enabled) =>
+    new sharedb-pg-mdb {io-pg: io, interval: milestone.interval or 250}
+  else null
+
   # ShareDB Backend
-  backend = new sharedb {
-    db: sharedb-postgres(io)
-    milestoneDb: if milestone.enable => new sharedb-pg-mdb({io-pg: io, interval: milestone.interval or 250}) else null
-  }
+  backend = new sharedb { db: sharedb-postgres(io), milestoneDb: mdb }
 
   # Connection object for ShareDB Server
   connect = backend.connect!
@@ -24,7 +25,7 @@ sharedb-wrapper = ({app, io, session, access, milestone}) ->
     # but this is discouraged by lpinca ( https://github.com/websockets/ws/issues/377#issuecomment-462152231 )
     # so we don't do it now. instead, use http server upgrade event.
     # verifyClient: (info, done) -> session(info.req, {}, -> done({result: true}))
-  
+
   # 1. HTTP upgrade to WebSocket
   # when http server get a header "Upgrade: Websocket" this will be triggered
   # lpinca suggests to use this to prepare additional data for each connection.
