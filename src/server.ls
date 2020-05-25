@@ -1,11 +1,11 @@
 require! <[sharedb sharedb-postgres sharedb-pg-mdb ws http websocket-json-stream]>
 sharedb-wrapper = (opt) ->
-  {app, io, session, access, milestone} = opt
+  {app, io, session, access, milestone-db} = opt
   # HTTP Server - if we create server here, we should server.listen instead of app.listen
   server = http.create-server app
 
-  mdb = if (milestone and milestone.enabled) =>
-    new sharedb-pg-mdb {io-pg: io, interval: milestone.interval or 250}
+  mdb = if (milestone-db and milestone-db.enabled) =>
+    new sharedb-pg-mdb {io-pg: io, interval: milestone-db.interval or 250}
   else null
 
   # ShareDB Backend

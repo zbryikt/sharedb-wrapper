@@ -9,6 +9,9 @@
 
   sharedb-wrapper.prototype = Object.create(Object.prototype) <<< do
     json: diff: (o,n,dostr=true) -> diff o,n,dostr
+    get-snapshot: ({id, version}) -> new Promise (res, rej) ~>
+      @connection.fetchSnapshot \doc, id, (if version? => version else null), (e, s) -> if e => rej(e) else res(s)
+
     get: ({id, watch, create}) -> new Promise (res, rej) ~>
       doc = @connection.get \doc, id
       doc.fetch (e) ->
