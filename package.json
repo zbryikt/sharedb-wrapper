@@ -36,6 +36,7 @@
     "sharedb": "^1.0.0",
     "sharedb-pg-mdb": "github:zbryikt/sharedb-pg-mdb",
     "sharedb-postgres": "git+https://github.com/zbryikt/sharedb-postgres-jsonb.git#release",
-    "websocket-json-stream": "^0.0.3"
+    "websocket-json-stream": "^0.0.3",
+    "ws": "^7.3.0"
   }
 }
