@@ -1,8 +1,10 @@
 (->
   #require! <[json0-ot-diff diff-match-patch]>
   diff = (o,n,dostr = true) -> json0-ot-diff o, n, (if dostr => diff-match-patch else null)
-  sharedb-wrapper = ({url}) ->
+  sharedb-wrapper = ({url, path}) ->
     @url = url
+    @path = path or '/ws'
+    @path = if path.0 == \/ => @path else "/#{@path}"
     @evt-handler = {}
     @reconnect!
     @
@@ -29,7 +31,7 @@
 
     reconnect: -> new Promise (res, rej) ~>
       if @socket => return res!
-      @socket = new WebSocket "#{if @url.scheme == \http => \ws else \wss}://#{@url.domain}/ws"
+      @socket = new WebSocket "#{if @url.scheme == \http => \ws else \wss}://#{@url.domain}#{@path}"
       @connection = new sharedb.Connection @socket
       @socket.addEventListener \close, ~> @ <<< {socket: null, connected: false}; @fire \close
       @socket.addEventListener \open, ~> @connected = true; res!
