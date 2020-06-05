@@ -16,9 +16,10 @@
 
     get: ({id, watch, create}) -> new Promise (res, rej) ~>
       doc = @connection.get \doc, id
-      doc.fetch (e) ->
+      doc.fetch (e) ~>
         if e => return rej e
         doc.subscribe (ops, source) -> res doc
+        doc.on \error, (err) ~> @fire \error, {doc, err}
         if watch? => doc.on \op, (ops, source) -> watch ops, source
         if !doc.type => doc.create ((if create => create! else null) or {})
     on: (n, cb) -> @evt-handler.[][n].push cb
