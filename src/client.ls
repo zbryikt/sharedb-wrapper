@@ -6,7 +6,7 @@
     @path = opt.path or '/ws'
     @path = if @path.0 == \/ => @path else "/#{@path}"
     @evt-handler = {}
-    @reconnect-info = {retry: 0}
+    @reconnect-info = {retry: 0, pending: []}
     @reconnect!
     @
 
@@ -14,9 +14,10 @@
     json: diff: (o,n,dostr=true) -> diff o,n,dostr
     get-snapshot: ({id, version}) -> new Promise (res, rej) ~>
       @connection.fetchSnapshot \doc, id, (if version? => version else null), (e, s) -> if e => rej(e) else res(s)
-    ready: -> Promise.resolve!then ~>
-      if @connected => return
-      else @reconnect!
+    ready: -> new Promise (res, rej) ~>
+      if @connected => return res!
+      if !@reconnect-info.handler => return @reconnect!
+      @reconnect-info.pending.push {res, rej}
 
     get: ({id, watch, create}) -> new Promise (res, rej) ~>
       doc = @connection.get \doc, id
@@ -41,12 +42,14 @@
       clearTimeout @reconnect-info.handler
       console.log "try reconnecting (#{@reconnect-info.retry}) after #{delay}ms ..."
       @reconnect-info.handler = setTimeout (~>
+        @reconnect-info.handler = null
         @socket = new WebSocket "#{if @url.scheme == \http => \ws else \wss}://#{@url.domain}#{@path}"
         @connection = new sharedb.Connection @socket
         @socket.addEventListener \close, ~>
           @ <<< {socket: null, connected: false}; @fire \close
         @socket.addEventListener \open, ~>
-          @reconnect-info <<< {retry: 0, handler: null}
+          @reconnect-info.retry = 0
+          @reconnect-info.[]pending.splice(0).map -> it.res!
           @ <<< {connected: true}; res!
       ), delay
 
