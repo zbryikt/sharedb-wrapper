@@ -1,11 +1,12 @@
 (->
   #require! <[json0-ot-diff diff-match-patch]>
   diff = (o,n,dostr = true) -> json0-ot-diff o, n, (if dostr => diff-match-patch else null)
-  sharedb-wrapper = ({url, path}) ->
-    @url = url
-    @path = path or '/ws'
-    @path = if path.0 == \/ => @path else "/#{@path}"
+  sharedb-wrapper = (opt = {}) ->
+    @url = opt.url
+    @path = opt.path or '/ws'
+    @path = if @path.0 == \/ => @path else "/#{@path}"
     @evt-handler = {}
+    @reconnect-info = {retry: 0}
     @reconnect!
     @
 
@@ -13,6 +14,9 @@
     json: diff: (o,n,dostr=true) -> diff o,n,dostr
     get-snapshot: ({id, version}) -> new Promise (res, rej) ~>
       @connection.fetchSnapshot \doc, id, (if version? => version else null), (e, s) -> if e => rej(e) else res(s)
+    ready: -> Promise.resolve!then ~>
+      if @connected => return
+      else @reconnect!
 
     get: ({id, watch, create}) -> new Promise (res, rej) ~>
       doc = @connection.get \doc, id
@@ -32,10 +36,19 @@
 
     reconnect: -> new Promise (res, rej) ~>
       if @socket => return res!
-      @socket = new WebSocket "#{if @url.scheme == \http => \ws else \wss}://#{@url.domain}#{@path}"
-      @connection = new sharedb.Connection @socket
-      @socket.addEventListener \close, ~> @ <<< {socket: null, connected: false}; @fire \close
-      @socket.addEventListener \open, ~> @connected = true; res!
+      delay = (@reconnect-info.retry++)
+      delay = Math.round(Math.pow(delay,1.4) * 500)
+      clearTimeout @reconnect-info.handler
+      @reconnect-info.handler = setTimeout (~>
+        console.log "retry: ", @reconnect-info, "delay: ", delay
+        @socket = new WebSocket "#{if @url.scheme == \http => \ws else \wss}://#{@url.domain}#{@path}"
+        @connection = new sharedb.Connection @socket
+        @socket.addEventListener \close, ~>
+          @ <<< {socket: null, connected: false}; @fire \close
+        @socket.addEventListener \open, ~>
+          @reconnect-info <<< {retry: 0, handler: null}
+          @ <<< {connected: true}; res!
+      ), delay
 
 
   if module? => module.exports = sharedb-wrapper
