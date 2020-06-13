@@ -39,8 +39,8 @@
       delay = (@reconnect-info.retry++)
       delay = Math.round(Math.pow(delay,1.4) * 500)
       clearTimeout @reconnect-info.handler
+      console.log "try reconnecting (#{@reconnect-info.retry}) after #{delay}ms ..."
       @reconnect-info.handler = setTimeout (~>
-        console.log "retry: ", @reconnect-info, "delay: ", delay
         @socket = new WebSocket "#{if @url.scheme == \http => \ws else \wss}://#{@url.domain}#{@path}"
         @connection = new sharedb.Connection @socket
         @socket.addEventListener \close, ~>
