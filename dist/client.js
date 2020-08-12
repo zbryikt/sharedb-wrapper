@@ -7,12 +7,18 @@ var slice$ = [].slice;
     return json0OtDiff(o, n, dostr ? diffMatchPatch : null);
   };
   sharedbWrapper = function(opt){
+    var p;
     opt == null && (opt = {});
-    this.url = opt.url;
-    this.path = opt.path || '/ws';
-    this.path = this.path[0] === '/'
-      ? this.path
-      : "/" + this.path;
+    import$(this, {
+      scheme: (opt.url || (opt.url = {})).scheme || window.location.protocol.replace(':', ''),
+      domain: opt.url.domain || window.location.host,
+      path: p = opt.url.path || opt.path || '/ws'
+    });
+    this.path = p[0] === '/'
+      ? p
+      : "/" + p;
+    this.scheme = this.scheme === 'http' ? 'ws' : 'wss';
+    this.collection = opt.collection || 'doc';
     this.evtHandler = {};
     this.reconnectInfo = {
       retry: 0,
@@ -32,7 +38,7 @@ var slice$ = [].slice;
       var id, version, this$ = this;
       id = arg$.id, version = arg$.version;
       return new Promise(function(res, rej){
-        return this$.connection.fetchSnapshot('doc', id, version != null ? version : null, function(e, s){
+        return this$.connection.fetchSnapshot(this$.collection, id, version != null ? version : null, function(e, s){
           if (e) {
             return rej(e);
           } else {
@@ -59,30 +65,34 @@ var slice$ = [].slice;
     get: function(arg$){
       var id, watch, create, this$ = this;
       id = arg$.id, watch = arg$.watch, create = arg$.create;
-      return new Promise(function(res, rej){
-        var doc;
-        doc = this$.connection.get('doc', id);
-        return doc.fetch(function(e){
-          if (e) {
-            return rej(e);
-          }
-          doc.subscribe(function(ops, source){
-            return res(doc);
-          });
-          doc.on('error', function(err){
-            return this$.fire('error', {
-              doc: doc,
-              err: err
+      return (!this.connection
+        ? this.reconnect()
+        : Promise.resolve()).then(function(){
+        return new Promise(function(res, rej){
+          var doc;
+          doc = this$.connection.get(this$.collection, id);
+          return doc.fetch(function(e){
+            if (e) {
+              return rej(e);
+            }
+            doc.subscribe(function(ops, source){
+              return res(doc);
             });
-          });
-          if (watch != null) {
-            doc.on('op', function(ops, source){
-              return watch(ops, source);
+            doc.on('error', function(err){
+              return this$.fire('error', {
+                doc: doc,
+                err: err
+              });
             });
-          }
-          if (!doc.type) {
-            return doc.create((create ? create() : null) || {});
-          }
+            if (watch != null) {
+              doc.on('op', function(ops, source){
+                return watch(ops, source);
+              });
+            }
+            if (!doc.type) {
+              return doc.create((create ? create() : null) || {});
+            }
+          });
         });
       });
     },
@@ -121,7 +131,7 @@ var slice$ = [].slice;
         console.log("try reconnecting (" + this$.reconnectInfo.retry + ") after " + delay + "ms ...");
         return this$.reconnectInfo.handler = setTimeout(function(){
           this$.reconnectInfo.handler = null;
-          this$.socket = new WebSocket((this$.url.scheme === 'http' ? 'ws' : 'wss') + "://" + this$.url.domain + this$.path);
+          this$.socket = new WebSocket(this$.scheme + "://" + this$.domain + this$.path);
           this$.connection = new sharedb.Connection(this$.socket);
           this$.socket.addEventListener('close', function(){
             this$.socket = null;

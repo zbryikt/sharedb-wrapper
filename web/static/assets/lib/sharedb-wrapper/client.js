@@ -84,7 +84,6 @@ var slice$ = [].slice;
                 err: err
               });
             });
-            console.log("watch: ", watch);
             if (watch != null) {
               doc.on('op', function(ops, source){
                 return watch(ops, source);

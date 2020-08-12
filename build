@@ -8,6 +8,10 @@ echo "build src/client.ls -> dist/client.js ..."
 ./node_modules/.bin/lsc -cbp src/client.ls > dist/client.js
 ./node_modules/.bin/uglifyjs dist/client.js > dist/client.min.js
 
+echo "build src/adapter.ls -> dist/adapter.js ..."
+./node_modules/.bin/lsc -cbp src/adapter.ls > dist/adapter.js
+./node_modules/.bin/uglifyjs dist/adapter.js > dist/adapter.min.js
+
 echo "building modules ..."
 echo " - json0-ot-diff ... -> dist/json-ot-diff.min.js "
 ./node_modules/.bin/browserify -p tinyify -r json0-ot-diff | \
@@ -29,7 +33,7 @@ echo " - sharedb ( client ) ... -> dist/sharedb.min.js"
 echo "(function() { window.sharedb = require('sharedb'); })();" >> dist/sharedb.min.js
 
 echo "bundling client files to client.bundle.min.js ..."
-cat dist/sharedb.min.js dist/json-ot-diff.min.js dist/client.min.js > dist/client.bundle.min.js
+cat dist/sharedb.min.js dist/json-ot-diff.min.js dist/client.min.js dist/adapter.min.js > dist/client.bundle.min.js
 
 echo "deploy files to web/ ..."
 mkdir -p web/static/assets/lib/sharedb-wrapper/
