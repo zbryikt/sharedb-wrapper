@@ -158,6 +158,55 @@ Usage:
    ret = json0-ot-diff obj1, obj2, diff-match-patch
    ```
 
+### Working on Partial Document
+
+You can adapt subtrees of the fetched document by `sdb-adapter` and `sdb-host`, and control subtree content by implementing `sdb-adapter.interface`. For example:
+
+    Ctrl = -> @
+    Ctrl.prototype = Object.create(Object.prototype) <<< sdb-adapter.interface <<< {}
+    host = new sdb-host {url: {scheme: \http, domain: \some-domain, path: \/ws}, id: \sample}
+    host.init-sdb!
+      .then ->
+        ctrl = new Ctrl!
+        ctrl.adapt {host, path: <[ctrl]>}
+
+Adapter should be created with `sdb-host`'s member function `adapt`, but `adapt` in `sdb-adapter.interface` already handles this.
+
+`sdb-adapter` provides following functions:
+
+ * ops-out - provide `ops` or a callback function for retrieving subtree to diff and automatically calculate `ops`. ops will be sent to server to update the whole document.
+ * ops-in({ops,data,source}) - invoke when subtree is modified.
+   - data: the updated subtree
+   - ops: ops for this update
+   - source: is this update fired by ourselves.
+   - default `ops-in` stores data in host object's `data` member.
+ * update: empty function invoked by default implementation of `ops-in`. overwrite this if default `ops-in` is used.
+ * adapt({host, path}) - adapt desired path and host.
+ * adapted: return true if this object already has adapter and is adapted.
+ * set-path(path): update `path` of the adapter.
+
+`sdb-host` provides following interface:
+
+ * options - passed in an object when construct a `sdb-host` object.
+   - id - doc id to use
+   - collection - collection to use. default `doc`.
+   - watch(ops, source) - fired when there is any update.
+   - create() - return default object for insert into document, if document is empty.
+   - url - object containing url information for sharedb. including following fields:
+     - scheme: e.g., `http`
+     - domain: e.g., `localhost`
+     - path: e.g., `/ws`. by default `/ws`
+   - reconnect() - will be called before `reconnect` is finished.
+ * events - can be caught by `on` function.
+   - init-sdb - sdb is initializing
+   - reconnecting - sdb is reconnecting
+   - reconnected - sdb is reconnected.
+ * methods
+   - on, fire - event handlers
+   - init-sdb - initialize sdb. return promise which will be resolved when sdb is initialized and ready.
+   - adapt(opt) - construct an Adapter and add it into this host.
+
+
 ## Web Server / Reverse Proxy Configuration
 
 Sharedb works over websocket, which connects to `/ws` URL with `ws://` or `wss://` schema. You will need to setup corresponding rules in your web server, such as, Nginx:
