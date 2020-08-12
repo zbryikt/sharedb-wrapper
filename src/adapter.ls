@@ -69,13 +69,16 @@ sdb-adapter.prototype = Object.create(Object.prototype) <<< do
       for n in @path => o = (o[n] or {})
       @data = o
     if ops =>
-      ops = ops.map (op) ~>
-        # if we touch the original ops, further update will fail. thus we clone it ( including op.p )
-        op = {} <<< op
-        for i from 0 til @path.length =>
-          if op.p.0 == @path[i] => (op.p = [] ++ op.p).splice(0, 1)
-          else break
-        return op
+      ops = ops
+        .map (op) ~>
+          # if we touch the original ops, further update will fail. thus we clone it ( including op.p )
+          op = {} <<< op
+          for i from 0 til @path.length =>
+            if op.p.0 == @path[i] => (op.p = [] ++ op.p).splice(0, 1)
+            else i = -1 ; break
+          return if i != -1 => op else null
+        .filter -> it
+
     @fire \ops-in, {ops, data: @data, source}
   ops-out: (ops) ->
     if !@sdb or !@doc.submitOp => return

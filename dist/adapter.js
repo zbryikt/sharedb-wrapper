@@ -153,10 +153,13 @@ sdbAdapter.prototype = import$(Object.create(Object.prototype), {
           if (op.p[0] === this$.path[i]) {
             (op.p = [].concat(op.p)).splice(0, 1);
           } else {
+            i = -1;
             break;
           }
         }
-        return op;
+        return i !== -1 ? op : null;
+      }).filter(function(it){
+        return it;
       });
     }
     return this.fire('ops-in', {
