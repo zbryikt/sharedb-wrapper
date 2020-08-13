@@ -1,23 +1,45 @@
 <- (->it!) _
 
-Ctrl = ->
+lc = {}
+
+view = new ldView do
+  root: document.body
+  action: click: do
+    reconnect: ({node}) ->
+      node.classList.add \running
+      debounce 1000
+        .then -> host.reconnect!
+        .then ->
+          lc.ldcv.set!
+          node.classList.remove \running
+  init: do
+    ldcv: ({node}) -> lc.ldcv = new ldCover root: node
+
+Ctrl = (opt = {}) ->
+  root = opt.root
+  @ <<< opt{host, path}
+  @root = root = if typeof(root) == \string => document.querySelector(root) else if root => root else null
   @view = new ldView do
-    root: document.body
+    root: root
     action: click: do
       add: ~>
         @data.c++
         @ops-out ~> @data
-      disconnect: -> console.log \disconnected
+      disconnect: ~>
+        @host.sdb.disconnect!
+        lc.ldcv.get!
     handler: do
       textarea: ({node}) ~> node.value = JSON.stringify(@data or '')
+
+  @adapt opt{host, path}
   @
 
 Ctrl.prototype = Object.create(Object.prototype) <<< sdb-adapter.interface <<< do
   update: -> @view.render!
 
-host = new sdb-host {url: {scheme: \http, domain: \localhost:3005, path: \/ws}, id: \sample}
+host = new sdb-host {url: {scheme: \http, domain: \localhost:3005, path: \/ws}, id: \sample, auto-reconnect: false}
 host.init-sdb!
   .then ->
-    ctrl = new Ctrl!
-    ctrl.adapt {host, path: <[ctrl]>}
+    ctrla = new Ctrl {host, path: <[ctrla]>, root: '[ld-scope=ctrla]'}
+    ctrlb = new Ctrl {host, path: <[ctrlb]>, root: '[ld-scope=ctrlb]'}
 

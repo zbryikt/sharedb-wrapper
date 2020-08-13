@@ -68,9 +68,11 @@ sdbHost.prototype = import$(Object.create(Object.prototype), {
     sdb.on('error', function(it){
       return this$.fire('error', it);
     });
-    sdb.on('close', function(){
-      return this$.reconnect();
-    });
+    if (!(this.opt.autoReconnect != null) || this.opt.autoReconnect) {
+      sdb.on('close', function(){
+        return this$.reconnect();
+      });
+    }
     return this.reconnect().then(function(){
       return sdb.ready();
     });
@@ -145,28 +147,28 @@ sdbAdapter.prototype = import$(Object.create(Object.prototype), {
       this.data = o;
     }
     if (ops) {
-      ops = ops.map(function(op){
+      ops = ops.filter(function(op){
         var i$, to$, i;
-        op = import$({}, op);
         for (i$ = 0, to$ = this$.path.length; i$ < to$; ++i$) {
           i = i$;
-          if (op.p[0] === this$.path[i]) {
-            (op.p = [].concat(op.p)).splice(0, 1);
-          } else {
-            i = -1;
-            break;
+          if (op.p[i] !== this$.path[i]) {
+            return 0;
           }
         }
-        return i !== -1 ? op : null;
-      }).filter(function(it){
-        return it;
+        return 1;
+      }).map(function(op){
+        op = import$({}, op);
+        op.p = op.p.slice(this$.path.length);
+        return op;
       });
     }
-    return this.fire('ops-in', {
-      ops: ops,
-      data: this.data,
-      source: source
-    });
+    if (!ops || ops.length) {
+      return this.fire('ops-in', {
+        ops: ops,
+        data: this.data,
+        source: source
+      });
+    }
   },
   opsOut: function(ops){
     var cur, o, p, opsAddon, i$, ref$, len$, n, ref1$, this$ = this;

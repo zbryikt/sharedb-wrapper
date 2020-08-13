@@ -32,7 +32,7 @@ sdb-host.prototype = Object.create(Object.prototype) <<< do
     @fire \init-sdb
     @sdb = sdb = new sharedb-wrapper {url: @opt.url}
     sdb.on \error, ~> @fire \error, it
-    sdb.on \close, ~> @reconnect!
+    if !(@opt.auto-reconnect?) or @opt.auto-reconnect => sdb.on \close, ~> @reconnect!
     @reconnect!then -> sdb.ready!
   adapt: (opt = {})->
     @adapters.push (a = new sdb-adapter({} <<< opt <<< {host: @}))
@@ -70,16 +70,15 @@ sdb-adapter.prototype = Object.create(Object.prototype) <<< do
       @data = o
     if ops =>
       ops = ops
+        .filter (op) ~>
+          for i from 0 til @path.length => if op.p[i] != @path[i] => return 0
+          return 1
         .map (op) ~>
-          # if we touch the original ops, further update will fail. thus we clone it ( including op.p )
+          # ops is a list shared across adapter, so we should not edit it directly.
           op = {} <<< op
-          for i from 0 til @path.length =>
-            if op.p.0 == @path[i] => (op.p = [] ++ op.p).splice(0, 1)
-            else i = -1 ; break
-          return if i != -1 => op else null
-        .filter -> it
-
-    @fire \ops-in, {ops, data: @data, source}
+          op.p = op.p.slice(@path.length)
+          op
+    if !ops or (ops.length) => @fire \ops-in, {ops, data: @data, source}
   ops-out: (ops) ->
     if !@sdb or !@doc.submitOp => return
     if typeof(ops) == \function =>
