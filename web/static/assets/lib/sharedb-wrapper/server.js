@@ -32,9 +32,7 @@ sharedbWrapper = function(opt){
       })
       : Promise.resolve();
     p.then(function(){
-      var session, user, wjs;
-      session = req.session;
-      user = req.session.passport && req.session.passport.user;
+      var wjs;
       return backend.listen(wjs = websocketJsonStream(ws), req);
     })['catch'](function(e){
       return console.log("[sharedb-wrapper] wss on connection error: ", e.message || e);

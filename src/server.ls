@@ -40,8 +40,9 @@ sharedb-wrapper = (opt) ->
   wss.on \connection, (ws, req) ->
     p = if session? => new Promise((res, rej) -> session(req, {}, (-> res!))) else Promise.resolve!
     p.then ->
-      session = req.session
-      user = req.session.passport and req.session.passport.user
+      # if we need session or user object from passport ...
+      # session = req.session
+      # user = session and session.passport and session.passport.user
       backend.listen (wjs = websocket-json-stream(ws)), req
     .catch (e) ->
       console.log "[sharedb-wrapper] wss on connection error: ", (e.message or e)
