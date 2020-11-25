@@ -158,7 +158,9 @@ Usage:
    ret = json0-ot-diff obj1, obj2, diff-match-patch
    ```
 
-### Working on Partial Document
+### Working on Partial Document (tentative)
+
+*adapter might be removed and replaced by [datahub](https://github.com/plotdb/datahub)*
 
 You can adapt subtrees of the fetched document by `sdb-adapter` and `sdb-host`, and control subtree content by implementing `sdb-adapter.interface`. For example:
 

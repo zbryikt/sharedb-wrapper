@@ -1,3 +1,6 @@
+# sdb-adapter
+# We now have [datahub](https://github.com/plotdb/datahub) so probably we won't need sdb-adapter.
+
 # options
 #  id - docid
 #  collection - doc collection
