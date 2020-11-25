@@ -7,15 +7,15 @@
   "files": [
     "dist/**/*"
   ],
-  "version": "0.0.1",
+  "version": "0.0.2",
   "homepage": "https://github.com/zbryikt/sharedb-wrapper",
   "repository": {
     "type": "git",
     "url": "https://github.com/zbryikt/sharedb-wrapper"
   },
   "engines": {
-    "node": ">=0.12.6",
-    "npm": ">=1.2.2"
+    "node": ">=10.14.1",
+    "npm": ">=6.4.1"
   },
   "scripts": {
     "start": "cd web; ../node_modules/.bin/lsc ./server.ls"
