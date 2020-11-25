@@ -4,6 +4,9 @@
   "license": "MIT",
   "main": "dist/server.js",
   "description": "Wrapper for quickly integrating sharedb in your express server. Use along with Postgresql.",
+  "files": [
+    "dist/**/*"
+  ],
   "version": "0.0.1",
   "homepage": "https://github.com/zbryikt/sharedb-wrapper",
   "repository": {
