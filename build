@@ -15,7 +15,7 @@ echo "build src/adapter.ls -> dist/adapter.js ..."
 echo "building modules ..."
 echo " - json0-ot-diff ... -> dist/json-ot-diff.min.js "
 ./node_modules/.bin/browserify -p tinyify -r json0-ot-diff | \
-  buble | ./node_modules/.bin/uglifyjs > dist/json-ot-diff.min.js
+  ./node_modules/.bin/buble | ./node_modules/.bin/uglifyjs > dist/json-ot-diff.min.js
 echo " - diff-match-patch ... -> dist/json-ot-diff.min.js "
 ./node_modules/.bin/browserify -p tinyify -r diff-match-patch | \
   ./node_modules/.bin/uglifyjs >> dist/json-ot-diff.min.js
