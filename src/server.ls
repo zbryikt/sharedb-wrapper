@@ -67,7 +67,12 @@ sharedb-wrapper = (opt) ->
     id = (snapshots.0 or {}).id
     (if access? => access({user, session, collection, id, snapshots, type: \readSnapshots}) else Promise.resolve!)
       .then -> cb!
-      .catch -> cb 'forbidden'
+      .catch ->
+        # TODO
+        # we use exception to identify rejection.
+        # yet it might be the case that access has bug.
+        # perhaps we can use means such as ldError to recognize this.
+        cb 'forbidden'
 
   # access control in both reply and receive middleware
   backend.use \reply, ({collection, agent, reply}, cb) ->
