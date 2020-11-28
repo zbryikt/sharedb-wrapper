@@ -1,0 +1,2 @@
+FROM postgres:10.15-alpine as base
+COPY node_modules/sharedb-postgres/structure.sql /docker-entrypoint-initdb.d

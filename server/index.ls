@@ -1,6 +1,18 @@
 require! <[fs express path colors template]>
 sharedb-wrapper = require "../src/server"
 
+root = path.join(path.dirname(fs.realpathSync __filename.replace(/\(js\)$/,'')), '..')
+
+config = do
+  port: process.env.PORT or 3005
+  pg: do
+    uri: "postgres://pg:pg@#{process.env.DB_HOST or \localhost}/pg"
+    database: "pg"
+    user: "pg"
+    password: "pg"
+    host: "#{process.env.DB_HOST or \localhost}"
+    port: "#{process.env.DB_PORT or 15432}"
+
 server = do
   init: (opt) ->
     @app = app = express!
@@ -16,7 +28,7 @@ server = do
       console.log "session user set: ", req.session
       next!
     # sharedb init
-    {server, sdb, connect, wss} = sharedb-wrapper {app, io: opt.io-pg, session, access}
+    {server, sdb, connect, wss} = sharedb-wrapper {app, io: opt.pg, session, access}
     app.set 'view engine', \pug
     app.use \/, express.static \static
     app.get \/create/, (req, res) ->
@@ -32,7 +44,7 @@ server = do
       delta = if opt.start-time => "( takes #{Date.now! - opt.start-time}ms )" else ''
       console.log "[SERVER] listening on port #{server.address!port} #delta".cyan
 
-config = JSON.parse(fs.read-file-sync 'config.json' .toString!)
+process.chdir path.join(root, 'web')
 
 server.init config
 template.watch.init config

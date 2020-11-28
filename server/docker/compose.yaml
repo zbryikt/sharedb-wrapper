@@ -1,0 +1,23 @@
+version: "3.8"
+services:
+  backend:
+    build:
+      context: ../..
+      dockerfile: ./server/docker/backend
+    ports:
+      - 13005:13005
+    depends_on:
+      - db
+    environment:
+      - DB_HOST=db
+      - DB_PORT=5432
+  db:
+    build:
+      context: ../..
+      dockerfile: ./server/docker/db
+    ports:
+      - 15432:5432
+    environment:
+      - POSTGRES_USER=pg
+      - POSTGRES_PASSWORD=pg
+      - POSTGRES_DB=pg
