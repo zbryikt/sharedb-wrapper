@@ -1,9 +1,12 @@
 doctype html
-include ../../static/assets/lib/ldui/pug/ldui.pug
+include ../../static/assets/lib/bootstrap.ldui/main/index.pug
 html
   head
-    +css("https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css")
-    +css("/assets/lib/ldui/ldui.min.css")
+    +css("assets/lib/bootstrap/main/css/bootstrap.min.css")
+    +css("assets/lib/bootstrap.ldui/main/bootstrap.ldui.min.css")
+    +css("assets/lib/ldiconfont/main/ldif.min.css")
+    +css("https://fonts.googleapis.com/css?family=Inconsolata&display=swap")
+    +css("assets/lib/ldcover/main/ldcv.min.css")
   body
     .p-4.w-1024.rwd.mx-auto.my-4
       textarea.form-control.form-control-lg.mb-2(rows="10",readonly)
@@ -14,8 +17,12 @@ html
       h3 Disconnected.
       br
       .btn.btn-outline-primary Reconnect
-    +script("/assets/lib/ldui/ldui.min.js")
-    +script("/assets/lib/sharedb-wrapper/sharedb.min.js")
-    +script("/assets/lib/sharedb-wrapper/json-ot-diff.min.js")
-    +script("/assets/lib/sharedb-wrapper/client.min.js")
+    +script("assets/lib/@plotdb/json0/main/json0.min.js")
+    +script("assets/lib/bootstrap.native/main/bootstrap-native.min.js")
+    +script("assets/lib/bootstrap.ldui/main/bootstrap.ldui.min.js")
+    +script("assets/lib/@loadingio/ldquery/main/ldq.min.js")
+    +script("assets/lib/ldcover/main/ldcv.min.js")
+    +script("assets/lib/ldview/main/ldview.min.js")
+    +script("assets/lib/ldloader/main/ldld.min.js")
+    +script("assets/lib/sharedb-wrapper/dev/client.bundle.min.js")
     +script("/js/index.js")
