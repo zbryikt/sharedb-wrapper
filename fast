@@ -1,7 +1,0 @@
-#!/usr/bin/env bash
-
-
-echo "build src/adapter.ls -> dist/adapter.js ..."
-./node_modules/.bin/lsc -cbp src/adapter.ls > dist/adapter.js
-./node_modules/.bin/uglifyjs dist/adapter.js > dist/adapter.min.js
-cp dist/* web/static/assets/lib/sharedb-wrapper/

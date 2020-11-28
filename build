@@ -1,26 +1,19 @@
 #!/usr/bin/env bash
+
+echo "clean up and prepare ... "
+rm -rf dist
 mkdir -p dist
-rm dist/*
+
 echo "build src/server.ls -> dist/server.js ..."
 ./node_modules/.bin/lsc -cbp src/server.ls > dist/server.js
 
-echo "build src/client.ls -> dist/client.js ..."
-./node_modules/.bin/lsc -cbp src/client.ls > dist/client.js
+echo "build and minify src/client.ls -> dist/client.js -> dist/client.min.js ..."
+./node_modules/.bin/lsc -cp src/client.ls > dist/client.js
 ./node_modules/.bin/uglifyjs dist/client.js > dist/client.min.js
 
-echo "build src/adapter.ls -> dist/adapter.js ..."
-./node_modules/.bin/lsc -cbp src/adapter.ls > dist/adapter.js
-./node_modules/.bin/uglifyjs dist/adapter.js > dist/adapter.min.js
 
-echo "building modules ..."
-echo " - json0-ot-diff ... -> dist/json-ot-diff.min.js "
-./node_modules/.bin/browserify -p tinyify -r json0-ot-diff | \
-  ./node_modules/.bin/buble | ./node_modules/.bin/uglifyjs > dist/json-ot-diff.min.js
-echo " - diff-match-patch ... -> dist/json-ot-diff.min.js "
-./node_modules/.bin/browserify -p tinyify -r diff-match-patch | \
-  ./node_modules/.bin/uglifyjs >> dist/json-ot-diff.min.js
-echo "(function() { window.json0OtDiff = require('json0-ot-diff'); window.diffMatchPatch = require('diff-match-patch'); })();" >> dist/json-ot-diff.min.js
-echo " - sharedb ( client ) ... -> dist/sharedb.min.js"
+echo "bundle sharedb ( client ) ... -> dist/sharedb.min.js"
+# common-shakeify in tinyify ( -p common-shakeify ) breaks things so we split tinyify into standalone plugins.
 ./node_modules/.bin/browserify \
   -g unassertify \
   -g envify \
@@ -28,16 +21,12 @@ echo " - sharedb ( client ) ... -> dist/sharedb.min.js"
   -r sharedb/lib/client:sharedb \
   -p browser-pack-flat/plugin \
   | ./node_modules/.bin/uglifyjs > dist/sharedb.min.js
-# common-shakeify breaks this module, so remove it.
-#  -p common-shakeify \
-echo "(function() { window.sharedb = require('sharedb'); })();" >> dist/sharedb.min.js
 
 echo "bundling client files to client.bundle.min.js ..."
-cat dist/sharedb.min.js dist/json-ot-diff.min.js dist/client.min.js dist/adapter.min.js > dist/client.bundle.min.js
+cat dist/sharedb.min.js dist/client.min.js > dist/client.bundle.min.js
 
 echo "deploy files to web/ ..."
-mkdir -p web/static/assets/lib/sharedb-wrapper/
-rm web/static/assets/lib/sharedb-wrapper/*
-cp dist/* web/static/assets/lib/sharedb-wrapper/
+rm -rf   web/static/assets/lib/sharedb-wrapper/dev/
+mkdir -p web/static/assets/lib/sharedb-wrapper/dev/
+cp dist/* web/static/assets/lib/sharedb-wrapper/dev/
 echo "done."
-
