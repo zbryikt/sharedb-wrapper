@@ -18,8 +18,8 @@
     "npm": ">=6.4.1"
   },
   "scripts": {
-    "start": "npx lsc server",
-    "db": "docker-compose -f server/docker/compose.yaml up -d db"
+    "start": "npx lsc web/backend",
+    "db": "docker-compose -f web/backend/docker/compose.yaml up -d db"
   },
   "devDependencies": {
     "livescript": ">=1.6.0",
