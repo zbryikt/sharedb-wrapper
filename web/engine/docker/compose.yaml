@@ -2,10 +2,10 @@ version: "3.8"
 services:
   backend:
     build:
-      context: ../..
-      dockerfile: ./server/docker/backend
+      context: ../../..
+      dockerfile: ./web/engine/docker/backend
     ports:
-      - 13005:13005
+      - 13005:3005
     depends_on:
       - db
     environment:
@@ -13,8 +13,8 @@ services:
       - DB_PORT=5432
   db:
     build:
-      context: ../..
-      dockerfile: ./server/docker/db
+      context: ../../..
+      dockerfile: ./web/engine/docker/db
     ports:
       - 15432:5432
     environment:
