@@ -22,7 +22,7 @@
     "db": "docker-compose -f web/engine/docker/compose.yaml up -d db"
   },
   "devDependencies": {
-    "livescript": ">=1.6.0",
+    "@plotdb/json0": "0.0.1",
     "browser-pack-flat": "^3.4.2",
     "browserify": "^16.5.0",
     "buble": "^0.20.0",
@@ -30,6 +30,8 @@
     "common-shakeify": "^0.6.2",
     "envify": "^4.1.0",
     "express": "^4.16.4",
+    "fedep": "0.0.8",
+    "livescript": ">=1.6.0",
     "template": "github:zbryikt/template#v2.1.6",
     "uglify-js": "=3.2.0",
     "uglifyify": "^5.0.2",
@@ -41,5 +43,11 @@
     "sharedb-postgres": "github:zbryikt/sharedb-postgres-jsonb#release",
     "websocket-json-stream": "^0.0.3",
     "ws": "^7.3.0"
+  },
+  "frontendDependencies": {
+    "root": "web/static/assets/lib",
+    "modules": [
+      "@plotdb/json0"
+    ]
   }
 }
