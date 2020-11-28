@@ -14,7 +14,6 @@
       ? p
       : "/" + p;
     this.scheme = this.scheme === 'http' ? 'ws' : 'wss';
-    this.collection = opt.collection || 'doc';
     this.evtHandler = {};
     this.reconnectInfo = {
       retry: 0,
@@ -25,10 +24,10 @@
   };
   main.prototype = import$(Object.create(Object.prototype), {
     getSnapshot: function(arg$){
-      var id, version, this$ = this;
-      id = arg$.id, version = arg$.version;
+      var id, version, collection, this$ = this;
+      id = arg$.id, version = arg$.version, collection = arg$.collection;
       return new Promise(function(res, rej){
-        return this$.connection.fetchSnapshot(this$.collection, id, version != null ? version : null, function(e, s){
+        return this$.connection.fetchSnapshot(collection != null ? collection : 'doc', id, version != null ? version : null, function(e, s){
           if (e) {
             return rej(e);
           } else {
@@ -53,14 +52,14 @@
       });
     },
     get: function(arg$){
-      var id, watch, create, this$ = this;
-      id = arg$.id, watch = arg$.watch, create = arg$.create;
+      var id, watch, create, collection, this$ = this;
+      id = arg$.id, watch = arg$.watch, create = arg$.create, collection = arg$.collection;
       return (!this.connection
         ? this.reconnect()
         : Promise.resolve()).then(function(){
         return new Promise(function(res, rej){
           var doc;
-          doc = this$.connection.get(this$.collection, id);
+          doc = this$.connection.get(collection != null ? collection : 'doc', id);
           return doc.fetch(function(e){
             if (e) {
               return rej(e);

@@ -1,3 +1,8 @@
+# 0.2.0
+
+ - remove `collection` option, and move it into get / getSnapshot as an optional parameter.
+
+
 # 0.1.0
 
  - phase out `opt.url.path`

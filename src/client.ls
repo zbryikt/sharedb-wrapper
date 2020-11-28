@@ -6,16 +6,15 @@ main = (opt = {}) ->
     path: p = (opt.url.path or \/ws)
   @path = if p.0 == \/ => p else "/#{p}"
   @scheme = if @scheme == \http => \ws else \wss
-  @collection = opt.collection or \doc
   @evt-handler = {}
   @reconnect-info = {retry: 0, pending: []}
   @reconnect!
   @
 
 main.prototype = Object.create(Object.prototype) <<< do
-  get-snapshot: ({id, version}) -> new Promise (res, rej) ~>
+  get-snapshot: ({id, version, collection}) -> new Promise (res, rej) ~>
     @connection.fetchSnapshot(
-      @collection,
+      (if collection? => collection else \doc),
       id,
       (if version? => version else null),
       (e, s) -> if e => rej(e) else res(s)
@@ -25,10 +24,10 @@ main.prototype = Object.create(Object.prototype) <<< do
     if !@reconnect-info.handler => return @reconnect!
     @reconnect-info.pending.push {res, rej}
 
-  get: ({id, watch, create}) ->
+  get: ({id, watch, create, collection}) ->
     <~ (if !@connection => @reconnect! else Promise.resolve!).then _
     (res, rej) <~ new Promise _
-    doc = @connection.get @collection, id
+    doc = @connection.get (if collection? => collection else \doc), id
     (e) <~ doc.fetch _
     if e => return rej e
     doc.subscribe (ops, source) -> res doc

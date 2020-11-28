@@ -1,13 +1,93 @@
 # Sharedb Wrapper
 
-Wrapper for quickly integrating sharedb in your express server. Use along with Postgresql. A browserified version of json0-ot-diff and diff-match-patch is also provided as ot-diff.js.
+A simple sharedb wrapper for both client and server side.
+
+client include:
+ - abstract most init logic into `get` function
+ - reconnect mechanism
+ - unified event interface
+
+server: for used along with `express` and `postgresql`. includes:
+ - access control
+ - adopt postgresql 
+ - milestone db
+ - inject session data
+
+   - doc.on("error") -> sharedb-wrapper.on("error")
+   - connection.on("close") -> sharedb-wrapper.on("close")
+
+## Client Side
+
+You can use `sharedb-wrapper` for only your frontend, but keep your original infrastructure without using `express` or `postgresql`.
+
+To use `sharedb-wrapper` in frontend, include `client.bundle.min.js` and create a `sharedb-wrapper` object:
+
+    <script src="client.bundle.min.js"></script>
+
+    <script>
+    sdb = new sharedbWrapper({url: {scheme: \http, domain: <your-domain>}})
+    sdb.get({id: "your-doc-id", watch: function(ops, source) { ... }})
+      .then(function (doc) {
+        /* access data via `doc.data` */
+        doSomethingWith(doc.data);
+        /* submit changes with doc.submitOp */
+        doc.submitOp( ... );
+      })
+    
+
+You can use `@plotdb/json0` to work with operational transformation. For example:
+
+    doc.submitOp(ops = json0.diff(oldData, newData))
 
 
-# Usage
+`client.bundle.min.js` includes both `sharedb` and `sharedb-wrapper` client side code. To include them separately, use `client.min.js` and `sharedb.min.js` instead. 
 
-You need to setup for both server and client side.
 
-## Database
+# client API
+
+Sharedb-wrapper constructor options:
+
+ - url
+   - scheme - either `https` or `http`. default calculated from window.location if omitted.
+   - domain - server domain. default to window.location.host if omitted
+   - path - path for websocket to connect. default `/ws` if omitted.
+
+A sharedb-wrapper provides following methods:
+
+ - get({id,watch,create,collection}): get a document based on id and collection.
+   - id - document id. user defined.
+   - collection - document collection, default `doc`
+   - create() - if doc.data is undefined, return value of `create` will be used as the initial content.
+   - watch(ops, source) - listener to document change. called when we get a new set of ot (ops) .
+    - ops - Array of operational transformation.
+    - source - true if this update is sent from us.
+ - getSnapshot({id,version,collection}): fetch snapshot of specific version, id and collection.
+   - id - document id. user defined.
+   - version - document version ( number ), default `null`
+   - collection - document collection, default `doc`
+ - ready(): alias of reconnect.
+ - on(event,cb): listen to specific events, which are described below.
+ - disconnect(): disconnect websocket from server.
+ - reconnect(): reconnect websocket if disconnected. return a Promise which is resolved when connected.
+
+# client Events
+
+ - close: websocket is closed - we lose connection.
+ - error: error occurred for certain document.
+
+
+### Reconnect
+
+monitor `sdb` close event and use `sdb.reconnect` to connect again:
+
+    sdb.on \close, ->
+      alert "disconnected. reconnect again ... "
+      setTimeout (-> sdb.reconnect! ), 5000
+
+
+## Server Side
+
+### Database
 
 You will need to setup database schema at first. check sharedb-postgres's structure.sql file:
 
@@ -33,42 +113,47 @@ or copy from here:
     );
 ```
 
-## Server Side
+### Backend Code
 
  - for any server, pass http / express server to the exposed function.
  - startup the server by listening to desired port on the returned web server object.
- - sample code: ( also refer to web/servevr.ls )
-   ```
-   require! <[sharedb-wrapper]>
+ - sample code: ( for a complete example. check `web/backend/servevr.ls` )
 
-   # your express server
-   app = express!
+    require! <[sharedb-wrapper]>
 
-   # your postgresql configuration
-   config = {
-     uri: "postgres://username:password@localhost/dbname",
-     database: "dbname",
-     user: "username",
-     password: "password",
-     host: "localhost"
-   }
+    # your express server
+    app = express!
 
-   # access control
-   access = ->  ...
+    # your postgresql configuration
+    config = {
+      uri: "postgres://username:password@localhost/dbname",
+      database: "dbname",
+      user: "username",
+      password: "password",
+      host: "localhost"
+    }
 
-   # session control
-   session = -> ...
+    # access control
+    access = ->  ...
 
-   # initialization
-   { server,  # wrapped http server
-     sdb,     # sharedb object
-     connect, # sharedb `Connection` object
-     wss      # websocket server
-   } = sharedb-wrapper {app, config, session, access}
+    # session control
+    session = -> ...
 
-   # server startup
-   server.listen <your-port>, -> ...
-   ```
+    # initialization
+    { server,  # wrapped http server
+      sdb,     # sharedb object
+      connect, # sharedb `Connection` object
+      wss      # websocket server
+    } = sharedb-wrapper {app, config, session, access, milestoneDb}
+
+    # server startup
+    server.listen <your-port>, -> ...
+
+MilestoneDB config:
+
+ - enabled: set to true to enable milestonDb. default false.
+ - interval: interval between versions to take a milestone. default 250
+
 
 ### Session Control
 
@@ -107,106 +192,10 @@ Access should return a Promise which only resolve when access is granted.
 ```
 
 
-## Client Side
-
- - include following files:
-   - as a bundle: dist/client.bundle.min.js
-   - separatedly:
-     - dist/sharedb.min.js
-     - dist/json-ot-diff.min.js
-     - dist/client.min.js
- - connect to sharedb server with sharedb-wrapper
- - get desired doc
- - use `doc.data` to read data
- - use `wrapper.json.diff(json1,json2)` to compare change and generate operation object `ops`.
- - use `doc.submitOp` to write data via `ops`
- - use `watch` function configured in sdb.get to watch for remote changes.
- - sample code: ( also refer to web/src/ls/index.ls )
-   ```
-   sdb = new sharedb-wrapper url: {scheme: \http, domain: <your-domain>}
-   sdb.get {id: <doc-id>, watch: (-> ... )}
-     .then (doc) -> doc.data ... 
-   update = -> doc.submitOp(sdb.json.diff(<old-data>, <new-data>))
-   ```
-
-
-### Reconnect
-
-monitor `sdb` close event and use `sdb.reconnect` to connect again:
-
-    sdb.on \close, ->
-      alert "disconnected. reconnect again ... "
-      setTimeout (-> sdb.reconnect! ), 5000
-
 
 ## Operational Transformation Diff Help Function
 
-To use sharedb, you need to calculate the OT(operational transformation) operations. sharedb-wrapper wraps a helper function `json0-ot-diff` from [kbadk/json0-ot-diff](https://github.com/kbadk/json0-ot-diff) for calculating json difference easily.
-
-It's already included in sharedb-wrapper in the created wrapper object, which could be accessed by `wrapperObj.json.diff`. By default it generate string insertion and deletion so you don't have to supply the thrid argument.
-
-You can also find a standalone file that provides `json0-ot-diff` and `diff-match-patch` functions. for more information, check out the [repo](https://github.com/kbadk/json0-ot-diff) directly.
-
-Usage:
- - diff two object with related ops returned
-   ```
-   ret = json0-ot-diff obj1, obj2
-   ```
-
- - also generate string insertion and deletion
-   ```
-   ret = json0-ot-diff obj1, obj2, diff-match-patch
-   ```
-
-### Working on Partial Document (tentative)
-
-*adapter might be removed and replaced by [datahub](https://github.com/plotdb/datahub)*
-
-You can adapt subtrees of the fetched document by `sdb-adapter` and `sdb-host`, and control subtree content by implementing `sdb-adapter.interface`. For example:
-
-    Ctrl = -> @
-    Ctrl.prototype = Object.create(Object.prototype) <<< sdb-adapter.interface <<< {}
-    host = new sdb-host {url: {scheme: \http, domain: \some-domain, path: \/ws}, id: \sample}
-    host.init-sdb!
-      .then ->
-        ctrl = new Ctrl!
-        ctrl.adapt {host, path: <[ctrl]>}
-
-Adapter should be created with `sdb-host`'s member function `adapt`, but `adapt` in `sdb-adapter.interface` already handles this.
-
-`sdb-adapter` provides following functions:
-
- * ops-out - provide `ops` or a callback function for retrieving subtree to diff and automatically calculate `ops`. ops will be sent to server to update the whole document.
- * ops-in({ops,data,source}) - invoke when subtree is modified.
-   - data: the updated subtree
-   - ops: ops for this update
-   - source: is this update fired by ourselves.
-   - default `ops-in` stores data in host object's `data` member.
- * update: empty function invoked by default implementation of `ops-in`. overwrite this if default `ops-in` is used.
- * adapt({host, path}) - adapt desired path and host.
- * adapted: return true if this object already has adapter and is adapted.
- * set-path(path): update `path` of the adapter.
-
-`sdb-host` provides following interface:
-
- * options - passed in an object when construct a `sdb-host` object.
-   - id - doc id to use
-   - collection - collection to use. default `doc`.
-   - watch(ops, source) - fired when there is any update.
-   - create() - return default object for insert into document, if document is empty.
-   - url - object containing url information for sharedb. including following fields:
-     - scheme: e.g., `http`
-     - domain: e.g., `localhost`
-     - path: e.g., `/ws`. by default `/ws`
-   - reconnect() - will be called before `reconnect` is finished.
- * events - can be caught by `on` function.
-   - init-sdb - sdb is initializing
-   - reconnecting - sdb is reconnecting
-   - reconnected - sdb is reconnected.
- * methods
-   - on, fire - event handlers
-   - init-sdb - initialize sdb. return promise which will be resolved when sdb is initialized and ready.
-   - adapt(opt) - construct an Adapter and add it into this host.
+To use sharedb, you need to calculate the OT(operational transformation) operations. `sharedb-wrapper` doesn't provide necessary tools but you can use [@plotdb/json0](https://github.com/plotdb/json0) which wraps [ot-json0](https://github.com/ottypes/json0), [json0-ot-diff](https://github.com/kbadk/json0-ot-diff) and [diff-match-patch](https://github.com/google/diff-match-patch) modules to manipulate json and operational transformation.
 
 
 ## Web Server / Reverse Proxy Configuration
