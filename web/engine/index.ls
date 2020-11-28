@@ -1,7 +1,7 @@
 require! <[fs express path colors template]>
-sharedb-wrapper = require "../src/server"
+sharedb-wrapper = require "../../src/server"
 
-root = path.join(path.dirname(fs.realpathSync __filename.replace(/\(js\)$/,'')), '..')
+root = path.join(path.dirname(fs.realpathSync __filename.replace(/\(js\)$/,'')), \.., \..)
 
 config = do
   port: process.env.PORT or 3005
@@ -18,8 +18,7 @@ server = do
     @app = app = express!
 
     access = ({user, session, collection, id, snapshots}) -> new Promise (res, rej) ->
-      # if !!(snapshots) and !(snapshots.0.data) -> it's a create access
-      if snapshots => if !snapshots.0.data => return rej(new Error!)
+      console.log "access control for [doc-id:#id] / session: ", session
       return res!
 
     session = (req, res, next) ->
