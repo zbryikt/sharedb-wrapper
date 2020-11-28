@@ -320,3 +320,6 @@ Sharedb works over websocket, which connects to `/ws` URL with `ws://` or `wss:/
          doc.submitOp op
          ```
 
+# TODO
+
+we need a specific Error for deny of access in `access` to recgonize forbidden from real error.
