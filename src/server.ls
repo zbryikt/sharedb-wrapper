@@ -1,4 +1,4 @@
-require! <[sharedb sharedb-postgres sharedb-pg-mdb ws http websocket-json-stream]>
+require! <[sharedb @plotdb/sharedb-postgres sharedb-pg-mdb ws http websocket-json-stream]>
 sharedb-wrapper = (opt) ->
   {app, io, session, access, milestone-db} = opt
   # HTTP Server - if we create server here, we should server.listen instead of app.listen

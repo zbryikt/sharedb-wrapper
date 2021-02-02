@@ -1,3 +1,11 @@
+# 1.0.0
+
+ - upgrade pg from v7 to v8 by upgrading following dependencies:
+   - upgrade `sharedb-postgres` to `@plotdb/sharedbpostgres@4.0.1`.
+   - upgrade `sharedb-pg-mdb` from `github:zbryikt/sharedb-pg-mdb` to `sharedb-pg-mdb@0.0.2`.
+ - upgrade sharedb from `1.0.0` to `1.6.0`
+
+
 # 0.2.0
 
  - remove `collection` option, and move it into get / getSnapshot as an optional parameter.

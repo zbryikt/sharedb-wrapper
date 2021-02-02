@@ -7,7 +7,7 @@
   "files": [
     "dist/**/*"
   ],
-  "version": "0.2.0",
+  "version": "1.0.0",
   "homepage": "https://github.com/zbryikt/sharedb-wrapper",
   "repository": {
     "type": "git",
@@ -39,7 +39,7 @@
     "ldiconfont": "github:loadingio/ldiconfont",
     "ldloader": "^1.0.0",
     "ldview": "0.0.2",
-    "livescript": ">=1.6.0",
+    "livescript": "^1.6.0",
     "mocha": "^8.2.1",
     "nyc": "^15.1.0",
     "template": "github:zbryikt/template#v2.1.6",
@@ -48,9 +48,9 @@
     "unassertify": "^2.1.1"
   },
   "dependencies": {
-    "sharedb": "^1.0.0",
-    "sharedb-pg-mdb": "github:zbryikt/sharedb-pg-mdb",
-    "sharedb-postgres": "github:zbryikt/sharedb-postgres-jsonb#release",
+    "@plotdb/sharedb-postgres": "^4.0.1",
+    "sharedb": "^1.6.0",
+    "sharedb-pg-mdb": "^0.0.2",
     "websocket-json-stream": "^0.0.3",
     "ws": "^7.3.0"
   },
