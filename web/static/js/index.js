@@ -48,13 +48,13 @@
   textarea.onchange = function(){
     return console.log(textarea.value);
   };
-  ldld = new ldLoader({
+  ldld = new ldloader({
     className: "ldld full"
   });
   sdb.on('close', function(){
     return ldcv.toggle();
   });
-  ldcv = new ldCover({
+  ldcv = new ldcover({
     root: '.ldcv'
   });
   return init();

@@ -2,7 +2,7 @@
 
 lc = {}
 
-view = new ldView do
+view = new ldview do
   root: document.body
   action: click: do
     reconnect: ({node}) ->
@@ -13,13 +13,13 @@ view = new ldView do
           lc.ldcv.set!
           node.classList.remove \running
   init: do
-    ldcv: ({node}) -> lc.ldcv = new ldCover root: node
+    ldcv: ({node}) -> lc.ldcv = new ldcover root: node
 
 Ctrl = (opt = {}) ->
   root = opt.root
   @ <<< opt{host, path}
   @root = root = if typeof(root) == \string => document.querySelector(root) else if root => root else null
-  @view = new ldView do
+  @view = new ldview do
     root: root
     action: click: do
       add: ~>

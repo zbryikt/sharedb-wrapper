@@ -1,4 +1,4 @@
-require! <[fs express path colors template]>
+require! <[fs express path colors @plotdb/srcbuild]>
 sharedb-wrapper = require "../../src/server"
 
 root = path.join(path.dirname(fs.realpathSync __filename.replace(/\(js\)$/,'')), \.., \..)
@@ -46,4 +46,5 @@ server = do
 process.chdir path.join(root, 'web')
 
 server.init config
-template.watch.init config
+#template.watch.init config
+srcbuild.lsp {base: '.'}

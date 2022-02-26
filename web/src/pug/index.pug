@@ -1,12 +1,14 @@
 doctype html
-include ../../static/assets/lib/bootstrap.ldui/main/index.pug
+include @/@loadingio/bootstrap.ext/index.pug
 html
   head
-    +css("assets/lib/bootstrap/main/css/bootstrap.min.css")
-    +css("assets/lib/bootstrap.ldui/main/bootstrap.ldui.min.css")
-    +css("assets/lib/ldiconfont/main/ldif.min.css")
-    +css("https://fonts.googleapis.com/css?family=Inconsolata&display=swap")
-    +css("assets/lib/ldcover/main/ldcv.min.css")
+    +css([
+      {url: "https://fonts.googleapis.com/css?family=Inconsolata&display=swap"},
+      {name: "bootstrap", path: "dist/css/bootstrap.min.css"},
+      {name: "@loadingio/bootstrap.ext"},
+      {name: "ldiconfont", path: "ldif.min.css"},
+      {name: "ldcover"}
+    ])
   body
     .p-4.w-1024.rwd.mx-auto.my-4
       textarea.form-control.form-control-lg.mb-2(rows="10",readonly)
@@ -17,14 +19,14 @@ html
       h3 Disconnected.
       br
       .btn.btn-outline-primary Reconnect
-    //- either one will do. ( sharedb-wrapper/ot-json0.min.js or @plotdb/json0 )
-    //-+script("assets/lib/sharedb-wrapper/dev/ot-json0.min.js")
-    +script("assets/lib/@plotdb/json0/main/json0.min.js")
-    +script("assets/lib/bootstrap.native/main/bootstrap-native.min.js")
-    +script("assets/lib/bootstrap.ldui/main/bootstrap.ldui.min.js")
-    +script("assets/lib/@loadingio/ldquery/main/ldq.min.js")
-    +script("assets/lib/ldcover/main/ldcv.min.js")
-    +script("assets/lib/ldview/main/ldview.min.js")
-    +script("assets/lib/ldloader/main/ldld.min.js")
-    +script("assets/lib/sharedb-wrapper/dev/client.bundle.min.js")
-    +script("/js/index.js")
+    //- either one will do: sharedb-wrapper/ot-json0.min.js or @plotdb/json0
+    +script([
+      {name: "bootstrap.native", path: "dist/bootstrap-native.min.js"},
+      {name: "@loadingio/ldquery"},
+      {name: "ldcover"},
+      {name: "ldview"},
+      {name: "ldloader"},
+      {name: "@plotdb/json0", path: "json0.min.js"},
+      {name: "sharedb-wrapper", version: "dev", path: "client.bundle.min.js"}, 
+      {url: "/js/index.js"}
+    ])

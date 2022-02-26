@@ -26,8 +26,8 @@
     sdb.get {id: \sample, watch: watch}
       .then (doc) -> local.doc = doc; watch!
   textarea.onchange = -> console.log textarea.value
-  ldld = new ldLoader className: "ldld full"
+  ldld = new ldloader className: "ldld full"
   sdb.on \close, -> ldcv.toggle!
-  ldcv = new ldCover root: \.ldcv
+  ldcv = new ldcover root: \.ldcv
   init!
 )!
