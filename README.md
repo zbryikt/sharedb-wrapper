@@ -309,6 +309,15 @@ Sharedb works over websocket, which connects to `/ws` URL with `ws://` or `wss:/
          doc.submitOp op
          ```
 
+## Bundling issue
+
+Client side bunlde of ShareDB is kinda big perhaps due to the inclusion of `async` module. Client side ShareDB ( 1.6.0 ) uses `async` only in `lib/client/presence/presence.js` while async.min.js takes about 24KB, half of the size of client side ShareDB itself.
+
+Additionally, `ot-json0` is a commonly used module when we are working with operational transformation so we may want to separate it from ShareDB bundle.
+
+Thus we make a dummy tiny async ( `src/async.ls` ) to be used by ShareDB and separate `ot-json0` from it. Current approach for the dummy asycn may break things if any other module so we may want to further integrate the async module directly into the ShareDB bundle.
+
+
 # TODO
 
 we need a specific Error for deny of access in `access` to recgonize forbidden from real error.

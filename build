@@ -5,28 +5,52 @@ rm -rf dist
 mkdir -p dist
 
 echo "build src/server.ls -> dist/server.js ..."
-./node_modules/.bin/lsc -cbp src/server.ls > dist/server.js
+./node_modules/.bin/lsc -cbp --no-header src/server.ls > dist/server.js
 
 echo "build and minify src/client.ls -> dist/client.js -> dist/client.min.js ..."
-./node_modules/.bin/lsc -cp src/client.ls > dist/client.js
-./node_modules/.bin/uglifyjs dist/client.js > dist/client.min.js
+./node_modules/.bin/lsc -cp --no-header src/client.ls > dist/client.js
+./node_modules/.bin/uglifyjs dist/client.js -m -c > dist/client.min.js
 
+./node_modules/.bin/lsc -cbp --no-header src/async.ls > dist/async.js
 
 echo "bundle sharedb ( client ) ... -> dist/sharedb.min.js"
 # common-shakeify in tinyify ( -p common-shakeify ) breaks things so we split tinyify into standalone plugins.
 ./node_modules/.bin/browserify \
+  -x async \
+  -x ot-json0 \
   -g unassertify \
   -g envify \
   -g uglifyify \
   -r sharedb/lib/client:sharedb \
   -p browser-pack-flat/plugin \
-  | ./node_modules/.bin/uglifyjs > dist/sharedb.min.js
+  | ./node_modules/.bin/uglifyjs -m -c > dist/sharedb.min.js
+
+echo "bundle async  ... -> dist/async.min.js"
+./node_modules/.bin/browserify \
+  -g unassertify \
+  -g envify \
+  -g uglifyify \
+  -r ./dist/async:async \
+  -p browser-pack-flat/plugin \
+  | ./node_modules/.bin/uglifyjs -m -c > dist/async.min.js
+
+echo "bundle ot-json0  ... -> dist/ot-json0.min.js"
+./node_modules/.bin/browserify \
+  -g unassertify \
+  -g envify \
+  -g uglifyify \
+  -r ot-json0 \
+  -p browser-pack-flat/plugin \
+  | ./node_modules/.bin/uglifyjs -m -c > dist/ot-json0.min.js
 
 echo "bundling client files to client.bundle.min.js ..."
-cat dist/sharedb.min.js dist/client.min.js > dist/client.bundle.min.js
+cat dist/async.min.js dist/sharedb.min.js dist/client.min.js > dist/client.bundle.min.js
+
+echo "remove async.js / async.min.js ..."
+rm dist/async.js dist/async.min.js
 
 echo "deploy files to web/ ..."
-rm -rf   web/static/assets/lib/sharedb-wrapper/dev/
+rm -rf  web/static/assets/lib/sharedb-wrapper/dev/
 mkdir -p web/static/assets/lib/sharedb-wrapper/dev/
 cp dist/* web/static/assets/lib/sharedb-wrapper/dev/
 echo "done."
