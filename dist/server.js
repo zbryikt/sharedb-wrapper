@@ -71,19 +71,23 @@ sharedbWrapper = function(opt){
       })
       : Promise.resolve()).then(function(){
       return cb();
-    })['catch'](function(){
-      return cb('forbidden');
+    })['catch'](function(e){
+      return cb(e) || {
+        name: 'lderror',
+        id: 1012
+      };
     });
   });
   backend.use('reply', function(arg$, cb){
-    var collection, agent, reply, ref$, req, session, user, id;
+    var collection, agent, reply, ref$, req, session, user, act, id;
     collection = arg$.collection, agent = arg$.agent, reply = arg$.reply;
     if (!agent.stream.ws) {
       return cb();
     }
     ref$ = agent.custom, req = ref$.req, session = ref$.session, user = ref$.user;
+    act = reply.a;
     id = reply.d;
-    return (access != null
+    return (act !== 'hs' && access != null
       ? access({
         user: user,
         session: session,
@@ -93,19 +97,23 @@ sharedbWrapper = function(opt){
       })
       : Promise.resolve()).then(function(){
       return cb();
-    })['catch'](function(){
-      return cb('forbidden');
+    })['catch'](function(e){
+      return cb(e || {
+        name: 'lderror',
+        id: 1012
+      });
     });
   });
   backend.use('receive', function(arg$, cb){
-    var collection, agent, data, ref$, req, session, user, id;
+    var collection, agent, data, ref$, req, session, user, act, id;
     collection = arg$.collection, agent = arg$.agent, data = arg$.data;
     if (!agent.stream.ws) {
       return cb();
     }
     ref$ = agent.custom, req = ref$.req, session = ref$.session, user = ref$.user;
+    act = data.a;
     id = data.d;
-    return (access != null
+    return (act !== 'hs' && access != null
       ? access({
         user: user,
         session: session,
@@ -117,7 +125,10 @@ sharedbWrapper = function(opt){
       : Promise.resolve()).then(function(){
       return cb();
     })['catch'](function(){
-      return cb('forbidden');
+      return cb(e || {
+        name: 'lderror',
+        id: 1012
+      });
     });
   });
   return ret = {
