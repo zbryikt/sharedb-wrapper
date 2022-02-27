@@ -1,5 +1,14 @@
 # Change Logs
 
+## v3.0.0
+
+ - API redesign:
+   - status change event
+   - cancel, status API. proper status definition
+   - return Promise in disconnect, cancel, conenct
+ - better backend error handling
+
+
 ## v2.0.0
 
  - (breaking) separate `ot-json` from client bundle. still provide it as a separated file `ot-json.min.js`.
