@@ -1,17 +1,33 @@
 require! <[sharedb]>
-main = (opt = {}) ->
+
+err = (e) -> new Error! <<< {name: \lderror, id: e}
+
+sharedb-wrapper = (opt = {}) ->
   @ <<< do
-    scheme: opt.{}url.scheme or window.location.protocol.replace(':','')
     domain: opt.url.domain or window.location.host
+    scheme: (opt.{}url.scheme or window.location.protocol.replace(':','') or 'https')
     path: p = (opt.url.path or \/ws)
+    evthdr: {}
+    # web socket object
+    socket: null
+    # sharedb connection object
+    connection: null
+    # connect controller
+    _ctrl:
+      count: 0
+      pending: []
+      hdr: null
+      canceller: null
+      disconnector: null
+    # status. 0: disconnected. 1: connecting. 2: connected.
+    _s: 0
+
   @path = if p.0 == \/ => p else "/#{p}"
   @scheme = if @scheme == \http => \ws else \wss
-  @evt-handler = {}
-  @reconnect-info = {retry: 0, pending: []}
-  @reconnect!
+  @connect!
   @
 
-main.prototype = Object.create(Object.prototype) <<< do
+sharedb-wrapper.prototype = Object.create(Object.prototype) <<< do
   get-snapshot: ({id, version, collection}) -> new Promise (res, rej) ~>
     @connection.fetchSnapshot(
       (if collection? => collection else \doc),
@@ -19,13 +35,9 @@ main.prototype = Object.create(Object.prototype) <<< do
       (if version? => version else null),
       (e, s) -> if e => rej(e) else res(s)
     )
-  ready: -> new Promise (res, rej) ~>
-    if @connected => return res!
-    if !@reconnect-info.handler => return @reconnect!
-    @reconnect-info.pending.push {res, rej}
 
   get: ({id, watch, create, collection}) ->
-    <~ (if !@connection => @reconnect! else Promise.resolve!).then _
+    <~ (if !@connection => @connect! else Promise.resolve!).then _
     (res, rej) <~ new Promise _
     doc = @connection.get (if collection? => collection else \doc), id
     (e) <~ doc.fetch _
@@ -35,32 +47,81 @@ main.prototype = Object.create(Object.prototype) <<< do
     if watch? => doc.on \op, (ops, source) -> watch ops, source
     if !doc.type => doc.create ((if create => create! else null) or {})
 
-  on: (n, cb) -> @evt-handler.[][n].push cb
-  fire: (n, ...v) -> for cb in (@evt-handler[n] or []) => cb.apply @, v
+  on: (n, cb) -> @evthdr.[][n].push cb
+  fire: (n, ...v) -> for cb in (@evthdr[n] or []) => cb.apply @, v
+
+  # resolves if connected. otherwise rejects.
+  _connect: (opt = {}) -> new Promise (res, rej) ~>
+    if @socket => return rej(err 1011)
+    @socket = new WebSocket "#{@scheme}://#{@domain}#{@path}"
+    @connection = new sharedb.Connection @socket
+    @socket.addEventListener \close, ~>
+      @ <<< socket: null
+      # Promise is resolved if ever connected so we don't reject.
+      # Besides, `close` is fired only if ever connected.
+      # if not yet connected, we are still connecting so we shouldn't fire close event.
+      # additionally _s should be 1 and controlled by caller,
+      # so we shouldn't touch it here.
+      if @_s != 2 => return rej(err 0)
+      # otherwise, it's a normal close event. we reset status and fire close event.
+      @_status 0
+      @fire \close
+      if @_ctrl.disconnector => @_ctrl.disconnector.res!
+    @socket.addEventListener \open, ~>
+      if !@_ctrl.canceller => return res!
+      @_ctrl.canceller.res!
+      return rej(err 0)
+
+  connect: (opt = {}) ->
+    cc = @_ctrl
+    if @_s == 2 => return Promise.reject(err 1011)
+    (res, rej) <~ new Promise _
+    cc.pending.push {res, rej}
+    if @_s == 1 => return
+    @_status 1
+    retry = !(opt.retry?) or !opt.retry
+    cc.count = 0
+    _ = ~>
+      delay = Math.round(Math.pow(cc.count++, 1.4) * 500) + (opt.delay or 0)
+      cc.hdr = setTimeout (~>
+        cc.hdr = null
+        @_connect!
+          .then ~>
+            @_status 2
+            cc.[]pending.splice 0 .map -> it.res!
+          .catch ->
+            if retry and !cc.canceller => return _!
+            cc.canceller = null
+            cc.[]pending.splice 0 .map -> it.rej!
+      ), delay
+    _!
+
   disconnect: ->
-    if !@socket => return
+    if @_s == 0 => return Promise.resolve!
+    if @_s == 1 => return @cancel!
+    ret = new Promise (res, rej) ~> @_ctrl.disconnector = {res, rej}
+    # let _connect takes care of deinit tasks
     @socket.close!
-    @ <<< socket: null, connected: false
-    @socket = null
+    ret
 
-  reconnect: -> new Promise (res, rej) ~>
-    if @socket => return res!
-    delay = (@reconnect-info.retry++)
-    delay = Math.round(Math.pow(delay,1.4) * 500)
-    clearTimeout @reconnect-info.handler
-    console.log "try reconnecting (#{@reconnect-info.retry}) after #{delay}ms ..."
-    @reconnect-info.handler = setTimeout (~>
-      @reconnect-info.handler = null
-      @socket = new WebSocket "#{@scheme}://#{@domain}#{@path}"
-      @connection = new sharedb.Connection @socket
-      @socket.addEventListener \close, ~>
-        @ <<< {socket: null, connected: false}; @fire \close
-      @socket.addEventListener \open, ~>
-        @reconnect-info.retry = 0
-        @reconnect-info.[]pending.splice(0).map -> it.res!
-        @ <<< {connected: true}; res!
-    ), delay
+  cancel: ->
+    cc = @_ctrl
+    if @_s != 1 => return Promise.reject(err 1026)
+    if cc.hdr =>
+      clearTimeout cc.hdr
+      cc.hdr = null
+      @_status 0
+      return Promise.resolve!
+    # it's only possible to reach here if timer is fired yet _connect is ongoing.
+    new Promise (res, rej) -> cc.canceller = {res, rej}
 
+  _status: (s) ->
+    os = @_s
+    @_s = s
+    if s != os => @fire \status, s
 
-if module? => module.exports = main
-if window? => window.sharedb-wrapper = main
+  status: -> return @_s
+  ensure: -> if @_s == 2 => Promise.resolve! else @connect!
+
+if module? => module.exports = sharedb-wrapper
+else if window? => window.sharedb-wrapper = sharedb-wrapper
