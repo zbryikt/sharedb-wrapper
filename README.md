@@ -54,26 +54,38 @@ Sharedb-wrapper constructor options:
 
 A sharedb-wrapper provides following methods:
 
- - get({id,watch,create,collection}): get a document based on id and collection.
+ - `get({id,watch,create,collection})`: get a document based on id and collection.
    - id - document id. user defined.
    - collection - document collection, default `doc`
    - create() - if doc.data is undefined, return value of `create` will be used as the initial content.
    - watch(ops, source) - listener to document change. called when we get a new set of ot (ops) .
     - ops - Array of operational transformation.
     - source - true if this update is sent from us.
- - getSnapshot({id,version,collection}): fetch snapshot of specific version, id and collection.
+ - `getSnapshot({id,version,collection})`: fetch snapshot of specific version, id and collection.
    - id - document id. user defined.
    - version - document version ( number ), default `null`
    - collection - document collection, default `doc`
- - ready(): alias of reconnect.
- - on(event,cb): listen to specific events, which are described below.
- - disconnect(): disconnect websocket from server.
- - reconnect(): reconnect websocket if disconnected. return a Promise which is resolved when connected.
+ - `ensure()`: ensure connection. return Promise, resolves when connected
+ - `on(event,cb))`: listen to specific events, which are described below.
+ - `disconnect()`: disconnect websocket from server.
+   - return Promise when disconnected.
+ - `connect(opt)`: reconnect websocket if disconnected. return a Promise which is resolved when connected.
+   - options:
+     - `retry`: automatically retry if set to true. default true.
+     - `delay`: delay ( in millisecond) before first connection attmpt. default 0
+ - `cancel()`: cancel connection. return Promise, resolves when connection canceled.
+   - reject lderror 1026 if no connection to cancel.
+ - `status()`: get connection status. return a integer with following possible values:
+   - `0`: not connected
+   - `1`: connecting
+   - `2`: connected
+
 
 # client Events
 
- - close: websocket is closed - we lose connection.
- - error: error occurred for certain document.
+ - `close`: websocket is closed - we lose connection.
+ - `error`: error occurred for certain document.
+ - `status`: fired when status changes, along with the status value as the first parameter.
 
 
 ### Reconnect
@@ -95,7 +107,6 @@ You will need to setup database schema at first. check sharedb-postgres's struct
 
 or copy from here:
 
-```
     CREATE TABLE ops (
       collection character varying(255) not null,
       doc_id character varying(255) not null,
@@ -111,7 +122,7 @@ or copy from here:
       data json not null,
       PRIMARY KEY (collection, doc_id)
     );
-```
+
 
 ### Backend Code
 
@@ -159,10 +170,9 @@ MilestoneDB config:
 
 By default, your express session won't available in sharedb request object. By passing `session` middleware to the sharedb-wrapper, websocket request object will be passed to session function and thus initialize with your session middleware, and the session information will be available later in your access control function.
 
-```
     sharedb-wrapper do
       session: (req, res, next) -> req.session = {user: 1}; next!
-```
+
 
 ### Access Control
 
@@ -174,23 +184,19 @@ Sharedb-wrapper check for permission in 3 places:
 
 by calling your `access` function with following profile:
 
-```
-  access = ({user, session, collection, id, snapshots}) ->
-```
+    access = ({user, session, collection, id, snapshots}) ->
+
 
 where snapshots will only available with `readSnapshot` middleware.
 
-Access should return a Promise which only resolve when access is granted.
+Access should return a Promise which only resolve when access is granted. By default the returned promise reject a lderror id 1012 error when access is denied.
 
 
 #### prohibit creating new document
 
-```
   access = ({snapshots}) ->
     if snapshots and !(snapshots.0.id) => return Promise.reject(new Error(""));
     return Promise.resolve!
-```
-
 
 
 ## Operational Transformation Diff Help Function
