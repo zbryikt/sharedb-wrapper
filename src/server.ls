@@ -67,7 +67,7 @@ sharedb-wrapper = (opt) ->
     id = (snapshots.0 or {}).id
     (if access? => access({user, session, collection, id, snapshots, type: \readSnapshots}) else Promise.resolve!)
       .then -> cb!
-      .catch (e) -> cb e or {name: \lderror, id: 1012}
+      .catch (e) -> cb(e or (new Error! <<< {name: \lderror, id: 1012}))
 
   # access control in both reply and receive middleware
   backend.use \reply, ({collection, agent, reply}, cb) ->
@@ -77,7 +77,7 @@ sharedb-wrapper = (opt) ->
     id = reply.d
     (if act != \hs and access? => access({user, session, collection, id, type: \reply}) else Promise.resolve!)
       .then -> cb!
-      .catch (e) -> cb(e or {name: \lderror, id: 1012})
+      .catch (e) -> cb(e or (new Error! <<< {name: \lderror, id: 1012}))
   backend.use \receive, ({collection, agent, data}, cb) ->
     if !agent.stream.ws => return cb!
     {req, session, user} = agent.custom
@@ -85,7 +85,7 @@ sharedb-wrapper = (opt) ->
     id = data.d
     (if act != \hs and access? => access({user, session, collection, id, data, type: \receive}) else Promise.resolve!)
       .then -> cb!
-      .catch -> cb(e or {name: \lderror, id: 1012})
+      .catch -> cb(e or (new Error! <<< {name: \lderror, id: 1012}))
 
   ret = { server, sdb: backend, connect, wss }
 

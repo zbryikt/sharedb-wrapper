@@ -72,10 +72,8 @@ sharedbWrapper = function(opt){
       : Promise.resolve()).then(function(){
       return cb();
     })['catch'](function(e){
-      return cb(e) || {
-        name: 'lderror',
-        id: 1012
-      };
+      var ref$;
+      return cb(e || (ref$ = new Error(), ref$.name = 'lderror', ref$.id = 1012, ref$));
     });
   });
   backend.use('reply', function(arg$, cb){
@@ -98,10 +96,8 @@ sharedbWrapper = function(opt){
       : Promise.resolve()).then(function(){
       return cb();
     })['catch'](function(e){
-      return cb(e || {
-        name: 'lderror',
-        id: 1012
-      });
+      var ref$;
+      return cb(e || (ref$ = new Error(), ref$.name = 'lderror', ref$.id = 1012, ref$));
     });
   });
   backend.use('receive', function(arg$, cb){
@@ -125,10 +121,8 @@ sharedbWrapper = function(opt){
       : Promise.resolve()).then(function(){
       return cb();
     })['catch'](function(){
-      return cb(e || {
-        name: 'lderror',
-        id: 1012
-      });
+      var ref$;
+      return cb(e || (ref$ = new Error(), ref$.name = 'lderror', ref$.id = 1012, ref$));
     });
   });
   return ret = {
