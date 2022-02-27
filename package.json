@@ -8,7 +8,7 @@
   "files": [
     "dist/**/*"
   ],
-  "version": "3.0.0",
+  "version": "3.0.1",
   "homepage": "https://github.com/zbryikt/sharedb-wrapper",
   "repository": {
     "type": "git",
@@ -22,16 +22,22 @@
     "start": "./node_modules/.bin/lsc web/engine",
     "db": "docker-compose -f web/engine/docker/compose.yaml up -d db"
   },
+  "aliasify": {
+    "aliases": {
+      "async": "./dist/async.js"
+    }
+  },
   "devDependencies": {
-    "@loadingio/ldquery": "^3.0.2",
-    "@plotdb/json0": "0.0.5",
-    "bootstrap": "^4.5.2",
     "@loadingio/bootstrap.ext": "^0.0.6",
+    "@loadingio/ldquery": "^3.0.2",
+    "@plotdb/colors": "^0.0.2",
+    "@plotdb/json0": "0.0.5",
+    "@plotdb/srcbuild": "^0.0.39",
+    "bootstrap": "^4.5.2",
     "bootstrap.native": "^3.0.13",
     "browser-pack-flat": "^3.4.2",
     "browserify": "^16.5.0",
     "buble": "^0.20.0",
-    "@plotdb/colors": "^0.0.2",
     "disc": "^1.3.3",
     "envify": "^4.1.0",
     "express": "^4.16.4",
@@ -43,13 +49,13 @@
     "livescript": "^1.6.0",
     "mocha": "^9.2.1",
     "nyc": "^15.1.0",
-    "@plotdb/srcbuild": "^0.0.39",
     "uglify-js": "^3.13.1",
     "uglifyify": "^5.0.2",
     "unassertify": "^2.1.1"
   },
   "dependencies": {
     "@plotdb/sharedb-postgres": "^4.0.1",
+    "aliasify": "^2.1.0",
     "sharedb": "^1.6.0",
     "sharedb-pg-mdb": "^0.0.2",
     "websocket-json-stream": "^0.0.3",

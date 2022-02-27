@@ -1,5 +1,10 @@
 # Change Logs
 
+## v3.0.1
+
+ - internalize dummy async by `aliasify` to prevent potential module overwrite issue
+
+
 ## v3.0.0
 
  - API redesign:

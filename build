@@ -15,24 +15,17 @@ echo "build and minify src/client.ls -> dist/client.js -> dist/client.min.js ...
 
 echo "bundle sharedb ( client ) ... -> dist/sharedb.min.js"
 # common-shakeify in tinyify ( -p common-shakeify ) breaks things so we split tinyify into standalone plugins.
+# use `aliasify` + `--global-transform aliasify` + `package.json:aliasify field`
+# to rewire async in sharedb/lib/client/presence/presence.js to our local dummy version
 ./node_modules/.bin/browserify \
-  -x async \
   -x ot-json0 \
   -g unassertify \
   -g envify \
   -g uglifyify \
+  -t aliasify --global-transform aliasify \
   -r sharedb/lib/client:sharedb \
   -p browser-pack-flat/plugin \
   | ./node_modules/.bin/uglifyjs -m -c > dist/sharedb.min.js
-
-echo "bundle dummy async -> dist/async.min.js"
-./node_modules/.bin/browserify \
-  -g unassertify \
-  -g envify \
-  -g uglifyify \
-  -r ./dist/async:async \
-  -p browser-pack-flat/plugin \
-  | ./node_modules/.bin/uglifyjs -m -c > dist/async.min.js
 
 echo "bundle ot-json0 -> dist/ot-json0.min.js"
 ./node_modules/.bin/browserify \
@@ -44,10 +37,10 @@ echo "bundle ot-json0 -> dist/ot-json0.min.js"
   | ./node_modules/.bin/uglifyjs -m -c > dist/ot-json0.min.js
 
 echo "bundling client files to client.bundle.min.js ..."
-cat dist/async.min.js dist/sharedb.min.js dist/client.min.js > dist/client.bundle.min.js
+cat dist/sharedb.min.js dist/client.min.js > dist/client.bundle.min.js
 
-echo "remove async.js / async.min.js ..."
-rm dist/async.js dist/async.min.js
+echo "remove async.js ..."
+rm dist/async.js
 
 echo "deploy files to web/ ..."
 rm -rf  web/static/assets/lib/sharedb-wrapper/dev/
