@@ -25,7 +25,7 @@ echo "bundle sharedb ( client ) ... -> dist/sharedb.min.js"
   -p browser-pack-flat/plugin \
   | ./node_modules/.bin/uglifyjs -m -c > dist/sharedb.min.js
 
-echo "bundle async  ... -> dist/async.min.js"
+echo "bundle dummy async -> dist/async.min.js"
 ./node_modules/.bin/browserify \
   -g unassertify \
   -g envify \
@@ -34,7 +34,7 @@ echo "bundle async  ... -> dist/async.min.js"
   -p browser-pack-flat/plugin \
   | ./node_modules/.bin/uglifyjs -m -c > dist/async.min.js
 
-echo "bundle ot-json0  ... -> dist/ot-json0.min.js"
+echo "bundle ot-json0 -> dist/ot-json0.min.js"
 ./node_modules/.bin/browserify \
   -g unassertify \
   -g envify \
