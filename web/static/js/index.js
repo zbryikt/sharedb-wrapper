@@ -14,15 +14,12 @@
   btn1.addEventListener('click', click);
   btn2 = ld$.find(document, '.btn')[1];
   btn2.addEventListener('click', function(){
-    if (!sdb.connected) {
-      return;
-    }
     return sdb.disconnect();
   });
   btn2 = ld$.find(document, '.btn')[2];
   btn2.addEventListener('click', function(){
     if (!sdb.connected) {
-      sdb.reconnect();
+      sdb.connect();
       init();
       return ldcv.toggle(false);
     }

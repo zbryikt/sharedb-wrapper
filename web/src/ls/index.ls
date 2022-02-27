@@ -10,13 +10,11 @@
   btn1 = ld$.find document, \.btn .0
   btn1.addEventListener \click, click
   btn2 = ld$.find document, \.btn .1
-  btn2.addEventListener \click, ->
-    if !sdb.connected => return
-    sdb.disconnect!
+  btn2.addEventListener \click, -> sdb.disconnect!
   btn2 = ld$.find document, \.btn .2
   btn2.addEventListener \click, ->
     if !sdb.connected =>
-      sdb.reconnect!
+      sdb.connect!
       init!
       ldcv.toggle false
 
