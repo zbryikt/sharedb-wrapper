@@ -1,5 +1,11 @@
 # Change Logs
 
+## v3.1.0
+
+ - support metadata injection.
+ - tweak access control implementation to make code simpler and faster.
+
+
 ## v3.0.2
 
  - remove unnecessary log

@@ -1,4 +1,4 @@
-require! <[fs express path colors @plotdb/srcbuild]>
+require! <[fs express path @plotdb/colors @plotdb/srcbuild]>
 sharedb-wrapper = require "../../src/server"
 
 root = path.join(path.dirname(fs.realpathSync __filename.replace(/\(js\)$/,'')), \.., \..)
@@ -21,13 +21,16 @@ server = do
       console.log "access control for [doc-id:#id] / session: ", session
       return res!
 
+    metadata = ({m, user, session, collection, id, snapsthos}) ->
+      m.user = server.user
+
     session = (req, res, next) ->
       server.user = (server.user or 0) + 1
       req.session = {name: "user-#{server.user}"}
       console.log "session user set: ", req.session
       next!
     # sharedb init
-    {server, sdb, connect, wss} = sharedb-wrapper {app, io: opt.pg, session, access}
+    {server, sdb, connect, wss} = sharedb-wrapper {app, io: opt.pg, session, access, metadata}
     app.set 'view engine', \pug
     app.use \/, express.static \static
     app.get \/create/, (req, res) ->

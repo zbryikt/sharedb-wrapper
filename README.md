@@ -9,6 +9,7 @@ client include:
 
 server: for used along with `express` and `postgresql`. includes:
  - access control
+ - metadata injection (for ops)
  - adopt postgresql 
  - milestone db
  - inject session data
@@ -111,7 +112,7 @@ or copy from here:
       collection character varying(255) not null,
       doc_id character varying(255) not null,
       version integer not null,
-      operation json not null, -- {v:0, create:{...}} or {v:n, op:[...]}
+      operation jsonb not null, -- {v:0, create:{...}} or {v:n, op:[...]}
       PRIMARY KEY (collection, doc_id, version)
     );
     CREATE TABLE snapshots (
@@ -119,7 +120,7 @@ or copy from here:
       doc_id character varying(255) not null,
       doc_type character varying(255) not null,
       version integer not null,
-      data json not null,
+      data jsonb not null,
       PRIMARY KEY (collection, doc_id)
     );
 
@@ -144,6 +145,9 @@ or copy from here:
       host: "localhost"
     }
 
+    # metadata
+    metadata = ->  ...
+
     # access control
     access = ->  ...
 
@@ -155,7 +159,7 @@ or copy from here:
       sdb,     # sharedb object
       connect, # sharedb `Connection` object
       wss      # websocket server
-    } = sharedb-wrapper {app, config, session, access, milestoneDb}
+    } = sharedb-wrapper {app, config, session, access, metadata, milestoneDb}
 
     # server startup
     server.listen <your-port>, -> ...
@@ -172,6 +176,17 @@ By default, your express session won't available in sharedb request object. By p
 
     sharedb-wrapper do
       session: (req, res, next) -> req.session = {user: 1}; next!
+
+
+### Metadata
+
+If `metadata` is provided, it will be called when `commit` hook is triggered:
+
+    metadata = ({m, user, session, collection, id, snaptshos}) ->
+
+edit the `m` field directly to inject necessary metadata. For example, add user id:
+
+    metadata = ({m, user, session, collection, id, snaptshos}) -> m.user = (if user? => user.key else 0)
 
 
 ### Access Control
